@@ -1,0 +1,46 @@
+"use client";
+
+import { useEffect, useState } from "react";
+import { useParams, redirect } from "next/navigation";
+import { useSession } from "next-auth/react";
+import { PanelRightClose, PanelRightOpen } from "lucide-react";
+import { Button } from "@/components/ui/button";
+import { Navbar } from "@/components/shared/Navbar";
+import { Sidebar } from "@/components/shared/Sidebar";
+import { SpreadsheetViewer } from "@/components/workspace/SpreadsheetViewer";
+import { QueryBar } from "@/components/workspace/QueryBar";
+import { ResultPanel } from "@/components/workspace/ResultPanel";
+import { api } from "@/lib/api";
+import { useSheetMindStore } from "@/lib/store";
+
+export default function WorkspacePage() {
+  const params = useParams<{ fileId: string }>();
+  const { data: session, status } = useSession();
+  const [showResults, setShowResults] = useState(true);
+  const [error, setError] = useState<string | null>(null);
+  const { setActiveFile, setSheetNames } = useSheetMindStore();
+
+  useEffect(() => {
+    if (!params.fileId || !session?.accessToken) return;
+    Promise.all([api.getFile(params.fileId, session.accessToken), api.getSheetInfo(params.fileId, session.accessToken)]).then(([file, info]) => {
+      setActiveFile(file);
+      setSheetNames(info.sheet_names ?? info.sheets ?? file.metadata?.sheets ?? ["Sheet1"]);
+    }).catch((err) => setError(err instanceof Error ? err.message : "Could not load workspace"));
+  }, [params.fileId, session?.accessToken, setActiveFile, setSheetNames]);
+
+  if (status === "unauthenticated") redirect("/");
+  return (
+    <div className="flex h-screen flex-col bg-background">
+      <Navbar />
+      <div className="flex min-h-0 flex-1">
+        <Sidebar />
+        <main className="flex min-w-0 flex-1 flex-col">
+          <div className="flex h-11 items-center justify-between border-b bg-white px-3"><div className="text-sm font-medium">A1:Z200</div><Button variant="ghost" size="icon" title="Toggle results" onClick={() => setShowResults((value) => !value)}>{showResults ? <PanelRightClose className="h-4 w-4" /> : <PanelRightOpen className="h-4 w-4" />}</Button></div>
+          {error ? <div className="m-4 rounded-lg border border-red-200 bg-red-50 p-4 text-sm text-red-700">{error}</div> : null}
+          <div className="flex min-h-0 flex-1"><SpreadsheetViewer fileId={params.fileId} token={session?.accessToken} />{showResults ? <ResultPanel /> : null}</div>
+          <QueryBar fileId={params.fileId} token={session?.accessToken} />
+        </main>
+      </div>
+    </div>
+  );
+}

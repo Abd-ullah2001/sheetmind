@@ -1,0 +1,12 @@
+[Unit]
+Description=SheetMind Celery Worker
+After=network.target
+
+[Service]
+User=ubuntu
+WorkingDirectory=/home/ubuntu/sheetmind/backend
+ExecStart=/home/ubuntu/sheetmind/backend/start_celery.sh
+Restart=always
+
+[Install]
+WantedBy=multi-user.target
