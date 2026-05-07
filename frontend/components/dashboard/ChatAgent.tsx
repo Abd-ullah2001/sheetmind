@@ -86,7 +86,7 @@ export function ChatAgent({ fileId, fileName, token, onClose }: ChatAgentProps) 
     }
   };
 
-  if (!fileId) return null;
+  if (!fileId || !token) return null;
 
   return (
     <div 

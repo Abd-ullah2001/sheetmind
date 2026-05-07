@@ -59,7 +59,7 @@ export default function DashboardPage() {
           <Card><CardHeader><CardTitle>Excel Upload</CardTitle></CardHeader><CardContent><FileUploadZone token={session?.accessToken} /></CardContent></Card>
         </div>
       </main>
-      {chatFile && (
+      {chatFile && session?.accessToken && (
         <ChatAgent 
           fileId={chatFile.id} 
           fileName={chatFile.display_name} 
