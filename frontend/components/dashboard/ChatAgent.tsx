@@ -140,7 +140,7 @@ export function ChatAgent({ fileId, fileName, token, onClose }: ChatAgentProps) 
                   <Bot className="h-8 w-8" />
                 </div>
                 <p className="text-sm font-medium text-slate-600">
-                  Hi! I'm your SheetMind agent. <br />
+                  Hi! I&apos;m your SheetMind agent. <br />
                   How can I help you with <b>{fileName}</b>?
                 </p>
                 <div className="mt-4 grid gap-2 w-full">
@@ -148,13 +148,13 @@ export function ChatAgent({ fileId, fileName, token, onClose }: ChatAgentProps) 
                     onClick={() => setInput("Summarize this spreadsheet")}
                     className="text-xs bg-white border rounded-lg py-2 px-3 hover:bg-blue-50 hover:border-blue-200 transition-colors text-left"
                   >
-                    "Summarize this spreadsheet"
+                    &quot;Summarize this spreadsheet&quot;
                   </button>
                   <button 
                     onClick={() => setInput("Add a new column for totals")}
                     className="text-xs bg-white border rounded-lg py-2 px-3 hover:bg-blue-50 hover:border-blue-200 transition-colors text-left"
                   >
-                    "Add a new column for totals"
+                    &quot;Add a new column for totals&quot;
                   </button>
                 </div>
               </div>

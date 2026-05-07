@@ -58,7 +58,7 @@ export function FileCard({ file, onDelete, onChat }: FileCardProps) {
 
         <div className="mt-6 flex flex-wrap items-center gap-2">
           <Badge 
-            variant="secondary" 
+            variant="default" 
             className={`rounded-md px-2 py-0.5 text-[10px] font-bold uppercase tracking-tight ${isGoogle ? 'bg-green-100 text-green-700' : 'bg-blue-100 text-blue-700'}`}
           >
             {file.file_type.replace("_", " ")}

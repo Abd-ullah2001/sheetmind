@@ -10,6 +10,7 @@ import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { FileCard } from "@/components/dashboard/FileCard";
 import { FileUploadZone } from "@/components/dashboard/FileUploadZone";
 import { Platform, PlatformSelector } from "@/components/dashboard/PlatformSelector";
+import { ChatAgent } from "@/components/dashboard/ChatAgent";
 import { api } from "@/lib/api";
 import type { SheetFile } from "@/types";
 
@@ -19,6 +20,7 @@ export default function DashboardPage() {
   const [files, setFiles] = useState<SheetFile[]>([]);
   const [isLoading, setLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
+  const [chatFile, setChatFile] = useState<SheetFile | null>(null);
 
   useEffect(() => {
     if (!session?.accessToken) return;
@@ -52,11 +54,19 @@ export default function DashboardPage() {
               </div>
             </div>
             {error ? <div className="rounded-lg border border-red-200 bg-red-50 p-4 text-sm text-red-700">{error}</div> : null}
-            {isLoading ? <div className="grid gap-4 sm:grid-cols-2 lg:grid-cols-3">{[1, 2, 3].map((item) => <div key={item} className="h-32 animate-pulse rounded-lg bg-muted" />)}</div> : visibleFiles.length > 0 ? <div className="grid gap-4 sm:grid-cols-2 lg:grid-cols-3">{visibleFiles.map((file) => <FileCard key={file.id} file={file} onDelete={(id) => void deleteFile(id)} />)}</div> : <div className="rounded-lg border bg-white p-8 text-center text-sm text-muted-foreground">No files for this platform yet.</div>}
+            {isLoading ? <div className="grid gap-4 sm:grid-cols-2 lg:grid-cols-3">{[1, 2, 3].map((item) => <div key={item} className="h-32 animate-pulse rounded-lg bg-muted" />)}</div> : visibleFiles.length > 0 ? <div className="grid gap-4 sm:grid-cols-2 lg:grid-cols-3">{visibleFiles.map((file) => <FileCard key={file.id} file={file} onDelete={(id) => void deleteFile(id)} onChat={(file) => setChatFile(file)} />)}</div> : <div className="rounded-lg border bg-white p-8 text-center text-sm text-muted-foreground">No files for this platform yet.</div>}
           </section>
           <Card><CardHeader><CardTitle>Excel Upload</CardTitle></CardHeader><CardContent><FileUploadZone token={session?.accessToken} /></CardContent></Card>
         </div>
       </main>
+      {chatFile && (
+        <ChatAgent 
+          fileId={chatFile.id} 
+          fileName={chatFile.display_name} 
+          token={session?.accessToken} 
+          onClose={() => setChatFile(null)} 
+        />
+      )}
     </div>
   );
 }
