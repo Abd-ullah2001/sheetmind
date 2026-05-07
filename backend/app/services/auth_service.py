@@ -4,8 +4,8 @@ from typing import Dict, Any, Optional
 from jose import jwt, JWTError
 import msal
 
-from app.config import get_settings
-from app.database import supabase_client
+from backend.app.config import get_settings
+from backend.app.database import supabase_client
 
 settings = get_settings()
 

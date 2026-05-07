@@ -1,0 +1,30 @@
+# Git
+.git
+.gitignore
+
+# Python
+__pycache__
+*.pyc
+*.pyo
+*.pyd
+.Python
+.venv
+venv
+ENV
+env
+.pytest_cache
+backend/.venv/
+backend/venv/
+
+# Node.js
+frontend/node_modules
+frontend/.next
+frontend/out
+
+# IDEs
+.vscode
+.idea
+
+# OS
+.DS_Store
+Thumbs.db
