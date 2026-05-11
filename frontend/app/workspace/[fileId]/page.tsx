@@ -1,7 +1,7 @@
 "use client";
 
 import { useEffect, useState } from "react";
-import { useParams, redirect } from "next/navigation";
+import { useParams, useRouter } from "next/navigation";
 import { useSession } from "next-auth/react";
 import { PanelRightClose, PanelRightOpen } from "lucide-react";
 import { Button } from "@/components/ui/button";
@@ -16,6 +16,7 @@ import { useSheetMindStore } from "@/lib/store";
 export default function WorkspacePage() {
   const params = useParams<{ fileId: string }>();
   const { data: session, status } = useSession();
+  const router = useRouter();
   const [showResults, setShowResults] = useState(true);
   const [error, setError] = useState<string | null>(null);
   const { setActiveFile, setSheetNames } = useSheetMindStore();
@@ -28,7 +29,9 @@ export default function WorkspacePage() {
     }).catch((err) => setError(err instanceof Error ? err.message : "Could not load workspace"));
   }, [params.fileId, session?.accessToken, setActiveFile, setSheetNames]);
 
-  if (status === "unauthenticated") redirect("/");
+  useEffect(() => {
+    if (status === "unauthenticated") router.replace("/");
+  }, [router, status]);
   return (
     <div className="flex h-screen flex-col bg-background">
       <Navbar />

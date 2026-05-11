@@ -27,6 +27,7 @@ export function ChatAgent({ fileId, fileName, token, onClose }: ChatAgentProps) 
   const [isLoading, setIsLoading] = useState(false);
   const [isMinimized, setIsMinimized] = useState(false);
   const scrollRef = useRef<HTMLDivElement>(null);
+  const sessionIdRef = useRef<string>(typeof crypto !== "undefined" && "randomUUID" in crypto ? crypto.randomUUID() : "");
 
   useEffect(() => {
     if (scrollRef.current) {
@@ -48,28 +49,11 @@ export function ChatAgent({ fileId, fileName, token, onClose }: ChatAgentProps) 
     setIsLoading(true);
 
     try {
-      // Create a unique session ID for this chat
-      const sessionId = `session_${fileId}`;
-      const response = await fetch(`${process.env.NEXT_PUBLIC_API_URL ?? "http://localhost:8000"}/api/v1/agent/query`, {
-        method: "POST",
-        headers: {
-          "Content-Type": "application/json",
-          "Authorization": `Bearer ${token}`
-        },
-        body: JSON.stringify({
-          file_id: fileId,
-          query: input,
-          session_id: sessionId
-        })
-      });
-
-      if (!response.ok) throw new Error("Agent failed to respond");
-      
-      const data = await response.json();
+      const data = await api.runAgentQuery(fileId, input, sessionIdRef.current || undefined, token);
       
       const assistantMessage: Message = {
         role: "assistant",
-        content: data.response || data.message || "I've processed your request.",
+        content: data.response || "I've processed your request.",
         timestamp: new Date(),
       };
 
@@ -77,7 +61,7 @@ export function ChatAgent({ fileId, fileName, token, onClose }: ChatAgentProps) 
     } catch (error) {
       const errorMessage: Message = {
         role: "assistant",
-        content: "Sorry, I encountered an error while processing your request. Please make sure the backend is running.",
+        content: error instanceof Error ? error.message : "Sorry, I encountered an error while processing your request.",
         timestamp: new Date(),
       };
       setMessages((prev) => [...prev, errorMessage]);

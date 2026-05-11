@@ -11,6 +11,8 @@ from app.database import supabase_client
 from app.redis_client import redis_client
 from app.tools import ALL_TOOLS
 from app.services.log_service import log_query
+from app.services import sheets_service, excel_service
+from app.services.auth_service import get_oauth_tokens
 
 settings = get_settings()
 
@@ -37,7 +39,11 @@ def run_agent_query(user_id: str, file_id: str, query: str, session_id: str = No
     start_time = time.time()
     
     # 1. Fetch conversation history
-    if not session_id:
+    # `agent_sessions.id` is a UUID column in Supabase; callers sometimes send non-UUID strings.
+    # Normalize to a UUID to avoid Postgres "invalid input syntax for type uuid" errors.
+    try:
+        session_id = str(uuid.UUID(str(session_id))) if session_id else str(uuid.uuid4())
+    except Exception:
         session_id = str(uuid.uuid4())
         
     res = supabase_client.table("agent_sessions").select("*").eq("id", session_id).execute()
@@ -72,7 +78,21 @@ def run_agent_query(user_id: str, file_id: str, query: str, session_id: str = No
     file_record = file_res.data[0]
     file_type = file_record.get("file_type")
     metadata = file_record.get("metadata", {})
-    sheet_names = metadata.get("sheet_names", [])
+    # Prefer live sheet names (metadata may be empty/stale for cloud spreadsheets).
+    sheet_names = metadata.get("sheet_names") or metadata.get("sheets") or []
+    try:
+        if file_type == "google_sheets":
+            access_token = get_oauth_tokens(user_id, "google")
+            info = sheets_service.get_workbook_info(file_record.get("external_id"), access_token)
+            if info.get("success") and info.get("result"):
+                sheet_names = info["result"].get("sheets") or sheet_names
+        elif file_type == "excel_local":
+            info = excel_service.get_workbook_info(file_record.get("s3_key"))
+            if info.get("success") and info.get("result"):
+                sheet_names = info["result"].get("sheets") or sheet_names
+    except Exception:
+        # If token lookup or API fails, keep best-effort metadata and let tools fail with a clear error later.
+        pass
     
     system_prompt = f"""You are a spreadsheet assistant. The user is working on a file called {file_record.get('display_name')}.
 It is a {file_type} file with the following sheets: {sheet_names}.
@@ -82,7 +102,8 @@ When calling tools, always provide user_id='{user_id}' and file_id='{file_id}'."
 
     # 2. Build LangGraph agent
     llm = get_llm()
-    agent = create_react_agent(llm, tools=ALL_TOOLS, state_modifier=system_prompt)
+    # langgraph.prebuilt.create_react_agent uses `prompt` (not `state_modifier`) in the installed version.
+    agent = create_react_agent(llm, tools=ALL_TOOLS, prompt=system_prompt)
     
     # 4. Run agent
     try:

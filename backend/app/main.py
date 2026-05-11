@@ -38,11 +38,13 @@ app = FastAPI(title="SheetMind API", version="1.0.0")
 app.add_middleware(RequestIDMiddleware)
 
 # CORS middleware
+# In development we allow both localhost and 127.0.0.1 since browsers treat them as different origins.
 origins = [
     "http://localhost:3000",
+    "http://127.0.0.1:3000",
 ]
 if settings.is_production:
-    # We would add the production frontend URL here
+    # We would add the production frontend URL(s) here
     origins.append("*")
 
 app.add_middleware(

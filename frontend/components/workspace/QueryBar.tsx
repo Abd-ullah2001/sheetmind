@@ -15,6 +15,10 @@ export function QueryBar({ fileId, token }: { fileId: string; token?: string }) 
 
   async function submit(event: FormEvent) {
     event.preventDefault();
+    if (!token) {
+      setError("Not authenticated. Please sign in again.");
+      return;
+    }
     const trimmed = query.trim();
     if (!trimmed || isQuerying) return;
     const started = performance.now();

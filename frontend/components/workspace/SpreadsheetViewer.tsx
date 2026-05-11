@@ -3,13 +3,16 @@
 import { useEffect, useMemo, useState } from "react";
 import { AgGridReact } from "ag-grid-react";
 import type { ColDef } from "ag-grid-community";
-import "ag-grid-community/styles/ag-grid.css";
-import "ag-grid-community/styles/ag-theme-quartz.css";
+import { ModuleRegistry } from "ag-grid-community";
+import { ClientSideRowModelModule } from "ag-grid-community";
 import { api } from "@/lib/api";
 import { useSheetMindStore } from "@/lib/store";
 import { LoadingSpinner } from "@/components/shared/LoadingSpinner";
 
 type Row = Record<string, unknown>;
+
+// AG Grid v34+ can require explicit module registration depending on build config.
+ModuleRegistry.registerModules([ClientSideRowModelModule]);
 
 function columnName(index: number) {
   let name = "";
@@ -29,7 +32,7 @@ export function SpreadsheetViewer({ fileId, token }: { fileId: string; token?: s
   const [error, setError] = useState<string | null>(null);
 
   useEffect(() => {
-    if (!activeSheet) return;
+    if (!activeSheet || !token) return;
     setLoading(true);
     setError(null);
     api.getSheetRange(fileId, activeSheet, "A1:Z200", token).then((data) => {
