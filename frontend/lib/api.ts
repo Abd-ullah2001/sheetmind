@@ -40,5 +40,9 @@ export const api = {
   deleteWebhook: (webhookId: string, token?: string) => request<{ message: string }>(`/webhooks/${webhookId}`, token, { method: "DELETE" }),
   getSheetInfo: (fileId: string, token?: string) => request<SheetInfo>(`/sheets/${fileId}/info`, token),
   getSheetRange: (fileId: string, sheet: string, range: string, token?: string) =>
-    request<unknown[][]>(`/sheets/${fileId}/range?sheet_name=${encodeURIComponent(sheet)}&range=${encodeURIComponent(range)}`, token)
+    request<unknown[][]>(`/sheets/${fileId}/range?sheet_name=${encodeURIComponent(sheet)}&range=${encodeURIComponent(range)}`, token),
+  connectGoogle: (sheetId: string, displayName: string, token?: string) =>
+    request<SheetFile>("/files/connect-google", token, { method: "POST", body: JSON.stringify({ sheet_id: sheetId, display_name: displayName }) }),
+  connectMicrosoft: (onedriveFileId: string, displayName: string, token?: string) =>
+    request<SheetFile>("/files/connect-microsoft", token, { method: "POST", body: JSON.stringify({ onedrive_file_id: onedriveFileId, display_name: displayName }) })
 };
