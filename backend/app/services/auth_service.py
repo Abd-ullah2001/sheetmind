@@ -24,10 +24,17 @@ def create_jwt_token(user_id: str, email: str, provider: str) -> str:
 
 def verify_jwt_token(token: str) -> dict:
     try:
-        payload = jwt.decode(token, settings.jwt_secret, algorithms=[settings.jwt_algorithm])
+        # Enforce exp validation and reject tampering deterministically.
+        payload = jwt.decode(
+            token,
+            settings.jwt_secret,
+            algorithms=[settings.jwt_algorithm],
+            options={"require": ["exp", "iat"], "verify_exp": True},
+        )
         return payload
-    except JWTError:
-        raise ValueError("Invalid or expired token")
+    except JWTError as e:
+        raise ValueError("Invalid or expired token") from e
+
 
 def upsert_user(email: str, name: str, avatar_url: str, provider: str) -> dict:
     # Check if user exists
@@ -66,10 +73,12 @@ def store_oauth_tokens(user_id: str, provider: str, access_token: str, refresh_t
 
 def get_oauth_tokens(user_id: str, provider: str) -> str:
     res = supabase_client.table("oauth_tokens").select("*").eq("user_id", user_id).eq("provider", provider).execute()
-    if not res.data:
+    data = getattr(res, "data", res.data)
+    if not isinstance(data, list) or len(data) == 0:
         raise ValueError("No tokens found")
-        
-    token_row = res.data[0]
+
+    token_row = data[0]
+
     
     # Check expiration
     if token_row.get("expires_at"):

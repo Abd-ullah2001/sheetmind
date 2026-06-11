@@ -7,77 +7,137 @@
 
 @layer base {
   :root {
-    --background: 210 40% 98%;
-    --foreground: 222.2 84% 4.9%;
-    --card: 0 0% 100%;
-    --card-foreground: 222.2 84% 4.9%;
-    --popover: 0 0% 100%;
-    --popover-foreground: 222.2 84% 4.9%;
-    --primary: 221.2 83.2% 53.3%;
-    --primary-foreground: 210 40% 98%;
-    --secondary: 210 40% 96.1%;
-    --secondary-foreground: 222.2 47.4% 11.2%;
-    --muted: 210 40% 96.1%;
-    --muted-foreground: 215.4 16.3% 46.9%;
-    --accent: 210 40% 96.1%;
-    --accent-foreground: 222.2 47.4% 11.2%;
-    --destructive: 0 84.2% 60.2%;
-    --destructive-foreground: 210 40% 98%;
-    --border: 214.3 31.8% 91.4%;
-    --input: 214.3 31.8% 91.4%;
-    --ring: 221.2 83.2% 53.3%;
-    --radius: 0.5rem;
+    --color-aubergine-core: #611f69;
+    --color-midnight-plum: #1d1c1d;
+    --color-eggplant-ink: #2e0039;
+    --color-plum-shadow: #3d0157;
+    --color-iris-mid: #730394;
+    --color-lavender-wash: #f9f0ff;
+    --color-lilac-veil: #f2defe;
+    --color-iris-edge: #eac8fe;
+    --color-violet-glow: #d17dfe;
+    --color-magenta-pulse: #9602c7;
+    --color-plum-deep: #481a54;
+    --color-cream-canvas: #fefbff;
+    --color-pure-white: #ffffff;
+    --color-graphite: #454245;
+    --color-steel: #696969;
+    --color-fog: #8e8e8e;
+    --color-ash: #edeaed;
+    --color-slate: #808080;
+    --color-ember-to-violet: #ba01ff;
+
+    --font-salesforce-avant-garde: 'Salesforce-Avant-Garde', ui-sans-serif, system-ui, -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif;
+    --font-salesforce-sans: 'Salesforce-Sans', ui-sans-serif, system-ui, -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif;
+
+    --spacing-4: 4px;
+    --spacing-6: 6px;
+    --spacing-7: 7px;
+    --spacing-8: 8px;
+    --spacing-10: 10px;
+    --spacing-12: 12px;
+    --spacing-16: 16px;
+    --spacing-18: 18px;
+    --spacing-20: 20px;
+    --spacing-24: 24px;
+    --spacing-30: 30px;
+    --spacing-32: 32px;
+    --spacing-40: 40px;
+    --spacing-80: 80px;
+    --spacing-96: 96px;
+
+    --page-max-width: 1200px;
+    --section-gap: 96px;
+    --card-padding: 32px;
+    --element-gap: 16px;
+
+    --radius-md: 4px;
+    --radius-lg: 8px;
+    --radius-xl: 12px;
+    --radius-2xl: 16px;
+    --radius-tags: 48px;
+    --radius-cards: 16px;
+    --radius-pills: 90px;
+    --radius-inputs: 4px;
+    --radius-buttons: 4px;
+
+    --shadow-xl: rgba(0, 0, 0, 0.1) 0px 0px 32px 0px;
+    --shadow-subtle: rgb(97, 31, 105) 0px 0px 0px 1px inset;
+    --shadow-lg: rgba(0, 0, 0, 0.1) 0px 5px 20px 0px;
+
+    --surface-cream-canvas: #fefbff;
+    --surface-pure-white: #ffffff;
+    --surface-lavender-wash: #f9f0ff;
+    --surface-plum-deep: #481a54;
+    --surface-plum-shadow-overlay: #3d0157;
+  }
+}
+
+@layer base {
+  * {
+    border-color: var(--color-iris-edge);
+  }
+
+  body {
+    min-height: 100vh;
+    background: var(--color-cream-canvas);
+    color: var(--color-midnight-plum);
+    font-family: var(--font-salesforce-sans);
+    letter-spacing: 0.007em;
+    -webkit-font-smoothing: antialiased;
+    -moz-osx-font-smoothing: grayscale;
+  }
+
+  h1, h2, h3, h4, h5, h6 {
+    font-family: var(--font-salesforce-avant-garde);
+    font-weight: 700;
   }
 }
 
 @layer utilities {
-  .glass {
-    background: rgba(255, 255, 255, 0.7);
-    backdrop-filter: blur(12px);
-    -webkit-backdrop-filter: blur(12px);
-    border: 1px solid rgba(255, 255, 255, 0.3);
+  .text-gradient-ember {
+    background: linear-gradient(104deg, #000000 9.56%, #ba01ff 102.66%);
+    -webkit-background-clip: text;
+    -webkit-text-fill-color: transparent;
+    background-clip: text;
   }
 
-  .bg-grid {
-    background-size: 40px 40px;
-    background-image: linear-gradient(to right, rgba(0, 0, 0, 0.05) 1px, transparent 1px),
-      linear-gradient(to bottom, rgba(0, 0, 0, 0.05) 1px, transparent 1px);
+  .bg-gradient-ember {
+    background: linear-gradient(104deg, #000000 9.56%, #ba01ff 102.66%);
   }
-}
 
-@keyframes blob {
-  0% { transform: translate(0px, 0px) scale(1); }
-  33% { transform: translate(30px, -50px) scale(1.1); }
-  66% { transform: translate(-20px, 20px) scale(0.9); }
-  100% { transform: translate(0px, 0px) scale(1); }
-}
+  .bg-gradient-plum-haze {
+    background: linear-gradient(102deg, rgba(131, 56, 138, 0.8) 0%, rgba(211, 137, 231, 0.8) 100%);
+  }
 
-.animate-blob {
-  animation: blob 7s infinite;
-}
+  .bg-radial-wash {
+    background:
+      radial-gradient(20vw circle at 10% 70%, rgba(255, 100, 150, 0.25) 0%, transparent 70%),
+      radial-gradient(20vw circle at 30% 70%, rgba(100, 150, 255, 0.25) 0%, transparent 70%),
+      radial-gradient(20vw circle at 65% 70%, rgba(100, 255, 150, 0.25) 0%, transparent 70%),
+      radial-gradient(20vw circle at 90% 70%, rgba(255, 255, 100, 0.25) 0%, transparent 70%);
+  }
 
-.animation-delay-2000 {
-  animation-delay: 2s;
-}
+  .bg-radial-wash-single {
+    background: radial-gradient(20vw circle at 50% 50%, rgba(255, 100, 150, 0.15) 0%, transparent 70%);
+  }
 
-.animation-delay-4000 {
-  animation-delay: 4s;
-}
+  .shadow-card {
+    box-shadow: rgba(0, 0, 0, 0.1) 0px 0px 32px 0px;
+  }
 
-* { border-color: hsl(var(--border)); }
-
-body {
-  min-height: 100vh;
-  background: hsl(var(--background));
-  color: hsl(var(--foreground));
-  letter-spacing: 0;
+  .shadow-subtle-inset {
+    box-shadow: rgb(97, 31, 105) 0px 0px 0px 1px inset;
+  }
 }
 
 .ag-theme-quartz {
-  --ag-font-family: inherit;
-  --ag-border-color: hsl(var(--border));
-  --ag-header-background-color: hsl(var(--muted));
-  --ag-foreground-color: hsl(var(--foreground));
-  --ag-background-color: white;
-  --ag-row-hover-color: hsl(172 66% 96%);
+  --ag-font-family: var(--font-salesforce-sans);
+  --ag-border-color: var(--color-iris-edge);
+  --ag-header-background-color: var(--color-lavender-wash);
+  --ag-foreground-color: var(--color-midnight-plum);
+  --ag-background-color: var(--color-pure-white);
+  --ag-row-hover-color: var(--color-lilac-veil);
+  --ag-header-foreground-color: var(--color-graphite);
+  --ag-secondary-foreground-color: var(--color-steel);
 }

@@ -1,5 +1,7 @@
 "use client";
 
+export const dynamic = "force-dynamic";
+
 import { useCallback, useEffect, useMemo, useState } from "react";
 import { useSession } from "next-auth/react";
 import { useRouter } from "next/navigation";
@@ -16,7 +18,7 @@ import { api } from "@/lib/api";
 import type { SheetFile } from "@/types";
 
 export default function DashboardPage() {
-  const { data: session, status } = useSession();
+  const sessionRes = useSession();
   const router = useRouter();
   const [platform, setPlatform] = useState<Platform>("google_sheets");
   const [files, setFiles] = useState<SheetFile[]>([]);
@@ -25,14 +27,18 @@ export default function DashboardPage() {
   const [chatFile, setChatFile] = useState<SheetFile | null>(null);
   const [isConnectModalOpen, setIsConnectModalOpen] = useState(false);
 
+  const data = sessionRes?.data;
+  const status = sessionRes?.status;
+  const accessToken = data?.accessToken;
+
   const fetchFiles = useCallback(() => {
-    if (!session?.accessToken) return;
+    if (!accessToken) return;
     setLoading(true);
-    api.getFiles(session.accessToken)
+    api.getFiles(accessToken)
       .then(setFiles)
       .catch((err) => setError(err instanceof Error ? err.message : "Could not load files"))
       .finally(() => setLoading(false));
-  }, [session?.accessToken]);
+  }, [accessToken]);
 
   useEffect(() => {
     fetchFiles();
@@ -47,34 +53,30 @@ export default function DashboardPage() {
   const visibleFiles = useMemo(() => files.filter((file) => isGoogle ? file.file_type === "google_sheets" : file.file_type === "excel_local" || file.file_type === "excel_online"), [files, isGoogle]);
 
   async function deleteFile(id: string) {
-    if (!session?.accessToken) return;
-    await api.deleteFile(id, session.accessToken);
+    if (!accessToken) return;
+    await api.deleteFile(id, accessToken);
     setFiles((current) => current.filter((file) => file.id !== id));
     if (chatFile?.id === id) setChatFile(null);
   }
 
   return (
-    <div className="min-h-screen bg-slate-50 relative overflow-hidden">
-      {/* Thematic Background Elements */}
-      <div className={`absolute top-0 -left-20 w-96 h-96 rounded-full mix-blend-multiply filter blur-3xl opacity-[0.15] animate-blob transition-colors duration-700 ${isGoogle ? 'bg-green-300' : 'bg-blue-300'}`}></div>
-      <div className={`absolute top-20 -right-20 w-96 h-96 rounded-full mix-blend-multiply filter blur-3xl opacity-[0.15] animate-blob animation-delay-2000 transition-colors duration-700 ${isGoogle ? 'bg-emerald-300' : 'bg-indigo-300'}`}></div>
-      
+    <div className="min-h-screen bg-[var(--color-cream-canvas)]">
       <Navbar />
-      
-      <main className="relative z-10 mx-auto max-w-7xl px-4 py-10">
-        <div className="flex flex-col gap-6 sm:flex-row sm:items-end sm:justify-between border-b border-slate-200 pb-8">
+
+      <main className="relative z-10 mx-auto max-w-page px-4 py-10">
+        <div className="flex flex-col gap-6 sm:flex-row sm:items-end sm:justify-between border-b border-[var(--color-iris-edge)] pb-8">
           <div>
             <div className="flex items-center gap-3 mb-2">
-              <div className={`p-2 rounded-lg ${isGoogle ? 'bg-green-100 text-green-600' : 'bg-blue-100 text-blue-600'} transition-colors duration-500`}>
+              <div className="flex h-10 w-10 items-center justify-center rounded-[8px] bg-[var(--color-lavender-wash)] text-[var(--color-aubergine-core)]">
                 <Sparkles className="h-5 w-5" />
               </div>
-              <h1 className="text-3xl font-bold text-slate-900 tracking-tight">Your Workspace</h1>
+              <h1 className="font-avant-garde text-[32px] font-bold text-[var(--color-midnight-plum)]">Your Workspace</h1>
             </div>
-            <p className="text-slate-500 max-w-xl">
+            <p className="max-w-xl text-[16px] text-[var(--color-graphite)] leading-[1.38]">
               Connect your spreadsheets and let the AI agent analyze, update, and manage your data automatically.
             </p>
           </div>
-          <div className="bg-white p-1 rounded-xl shadow-sm border border-slate-100">
+          <div className="rounded-[8px] border border-[var(--color-iris-edge)] bg-[var(--color-pure-white)] p-1 shadow-sm">
             <PlatformSelector value={platform} onChange={setPlatform} />
           </div>
         </div>
@@ -82,22 +84,19 @@ export default function DashboardPage() {
         <div className="mt-8 grid gap-8 lg:grid-cols-[1fr_320px]">
           <section>
             <div className="mb-6 flex items-center justify-between">
-              <h2 className="text-xl font-semibold text-slate-800">
+              <h2 className="font-avant-garde text-[24px] font-bold text-[var(--color-midnight-plum)]">
                 {isGoogle ? "Google Sheets" : "Excel Workbooks"}
               </h2>
               <div className="flex gap-3">
-                <Button 
-                  variant="outline" 
-                  className={`border-slate-200 bg-white shadow-sm transition-all hover:bg-slate-50 ${isGoogle ? 'text-green-700 hover:text-green-800' : 'text-blue-700 hover:text-blue-800'}`}
+                <Button
+                  variant="outline"
+                  size="sm"
                   onClick={() => { if (isGoogle) window.open("https://sheets.new", "_blank"); }}
                 >
                   <Plus className="mr-2 h-4 w-4" />
                   New File
                 </Button>
-                <Button 
-                  className={`shadow-sm transition-all text-white ${isGoogle ? 'bg-green-600 hover:bg-green-700 shadow-green-600/20' : 'bg-blue-600 hover:bg-blue-700 shadow-blue-600/20'}`}
-                  onClick={() => setIsConnectModalOpen(true)}
-                >
+                <Button size="sm" onClick={() => setIsConnectModalOpen(true)}>
                   <ExternalLink className="mr-2 h-4 w-4" />
                   Connect Existing
                 </Button>
@@ -105,7 +104,7 @@ export default function DashboardPage() {
             </div>
 
             {error && (
-              <div className="mb-6 rounded-xl border border-red-200 bg-red-50 p-4 text-sm text-red-700 shadow-sm">
+              <div className="mb-6 rounded-[8px] border border-red-200 bg-red-50 p-4 text-[14px] text-red-700">
                 {error}
               </div>
             )}
@@ -113,67 +112,61 @@ export default function DashboardPage() {
             {isLoading ? (
               <div className="grid gap-5 sm:grid-cols-2">
                 {[1, 2, 3, 4].map((item) => (
-                  <div key={item} className="h-40 animate-pulse rounded-2xl bg-white/60 border border-slate-100 shadow-sm" />
+                  <div key={item} className="h-40 animate-pulse rounded-[16px] bg-[var(--color-pure-white)]/60 border border-[var(--color-iris-edge)]" />
                 ))}
               </div>
             ) : visibleFiles.length > 0 ? (
               <div className="grid gap-5 sm:grid-cols-2">
                 {visibleFiles.map((file) => (
-                  <FileCard 
-                    key={file.id} 
-                    file={file} 
-                    onDelete={deleteFile} 
-                    onChat={setChatFile} 
+                  <FileCard
+                    key={file.id}
+                    file={file}
+                    onDelete={deleteFile}
+                    onChat={setChatFile}
                   />
                 ))}
               </div>
             ) : (
-              <div className="flex flex-col items-center justify-center rounded-2xl border border-dashed border-slate-300 bg-white/50 backdrop-blur-sm p-12 text-center shadow-sm">
-                <div className={`flex h-16 w-16 items-center justify-center rounded-full mb-4 ${isGoogle ? 'bg-green-100 text-green-500' : 'bg-blue-100 text-blue-500'}`}>
+              <div className="flex flex-col items-center justify-center rounded-[16px] border border-dashed border-[var(--color-iris-edge)] bg-[var(--color-pure-white)]/50 p-12 text-center">
+                <div className="mb-4 flex h-16 w-16 items-center justify-center rounded-full bg-[var(--color-lavender-wash)] text-[var(--color-aubergine-core)]">
                   <ExternalLink className="h-8 w-8" />
                 </div>
-                <h3 className="text-lg font-semibold text-slate-800 mb-1">No files connected yet</h3>
-                <p className="text-sm text-slate-500 max-w-sm">
-                  Click the &quot;Connect Existing&quot; button to link your {isGoogle ? 'Google Sheets' : 'Excel workbooks'} to SheetMind.
+                <h3 className="font-avant-garde text-[24px] font-bold text-[var(--color-midnight-plum)]">No files connected yet</h3>
+                <p className="mt-2 max-w-sm text-[14px] text-[var(--color-steel)]">
+                  Click the &quot;Connect Existing&quot; button to link your {isGoogle ? "Google Sheets" : "Excel workbooks"} to SheetMind.
                 </p>
-                <Button 
-                  className={`mt-6 shadow-sm text-white ${isGoogle ? 'bg-green-600 hover:bg-green-700' : 'bg-blue-600 hover:bg-blue-700'}`}
-                  onClick={() => setIsConnectModalOpen(true)}
-                >
+                <Button className="mt-6" onClick={() => setIsConnectModalOpen(true)}>
                   Connect Your First File
                 </Button>
               </div>
             )}
           </section>
 
-          {/* Right Sidebar */}
           <aside className="space-y-6">
             {!isGoogle && (
-              <Card className="border-slate-200 shadow-md shadow-slate-200/50 overflow-hidden rounded-2xl bg-white/80 backdrop-blur">
-                <div className="h-1 w-full bg-blue-500" />
-                <CardHeader className="bg-slate-50/50 pb-4 border-b border-slate-100">
-                  <CardTitle className="text-lg">Local Excel Upload</CardTitle>
+              <Card>
+                <CardHeader>
+                  <CardTitle>Local Excel Upload</CardTitle>
                 </CardHeader>
-                <CardContent className="pt-6">
-                  <FileUploadZone token={session?.accessToken} />
+                <CardContent>
+                  <FileUploadZone token={accessToken} />
                 </CardContent>
               </Card>
             )}
 
-            <Card className="border-slate-200 shadow-md shadow-slate-200/50 overflow-hidden rounded-2xl bg-white/80 backdrop-blur">
-              <div className={`h-1 w-full ${isGoogle ? 'bg-green-500' : 'bg-blue-500'}`} />
-              <CardHeader className="bg-slate-50/50 pb-4 border-b border-slate-100">
-                <CardTitle className="text-lg">Agent Status</CardTitle>
+            <Card>
+              <CardHeader>
+                <CardTitle>Agent Status</CardTitle>
               </CardHeader>
-              <CardContent className="pt-6">
+              <CardContent>
                 <div className="flex items-center gap-3">
                   <div className="relative flex h-3 w-3">
-                    <span className="animate-ping absolute inline-flex h-full w-full rounded-full bg-green-400 opacity-75"></span>
-                    <span className="relative inline-flex rounded-full h-3 w-3 bg-green-500"></span>
+                    <span className="absolute inline-flex h-full w-full animate-ping rounded-full bg-green-400 opacity-75" />
+                    <span className="relative inline-flex h-3 w-3 rounded-full bg-green-500" />
                   </div>
-                  <span className="text-sm font-medium text-slate-600">Online & Ready</span>
+                  <span className="text-[14px] font-medium text-[var(--color-midnight-plum)]">Online &amp; Ready</span>
                 </div>
-                <p className="mt-3 text-xs text-slate-500">
+                <p className="mt-3 text-[12px] text-[var(--color-steel)]">
                   Select a file and click &quot;Chat with Agent&quot; to begin analyzing your data.
                 </p>
               </CardContent>
@@ -183,10 +176,10 @@ export default function DashboardPage() {
       </main>
 
       {isConnectModalOpen && (
-        <ConnectModal 
-          platform={platform} 
-          token={session?.accessToken} 
-          onClose={() => setIsConnectModalOpen(false)} 
+        <ConnectModal
+          platform={platform}
+          token={accessToken}
+          onClose={() => setIsConnectModalOpen(false)}
           onSuccess={() => {
             setIsConnectModalOpen(false);
             fetchFiles();
@@ -194,15 +187,14 @@ export default function DashboardPage() {
         />
       )}
 
-      {chatFile && session?.accessToken && (
-        <ChatAgent 
-          fileId={chatFile.id} 
-          fileName={chatFile.display_name} 
-          token={session?.accessToken} 
-          onClose={() => setChatFile(null)} 
+      {chatFile && accessToken && (
+        <ChatAgent
+          fileId={chatFile.id}
+          fileName={chatFile.display_name}
+          token={accessToken}
+          onClose={() => setChatFile(null)}
         />
       )}
     </div>
   );
 }
-

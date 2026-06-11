@@ -17,7 +17,7 @@ async def query_agent(request: QueryRequest, current_user: dict = Depends(get_cu
             user_id=current_user["user_id"],
             file_id=request.file_id,
             query=request.query,
-            session_id=request.session_id
+            session_id=request.session_id if request.session_id else None,
         )
         return result
     except Exception as e:
@@ -34,7 +34,8 @@ async def get_sessions(file_id: str, current_user: dict = Depends(get_current_us
         .eq("file_id", file_id) \
         .order("updated_at", desc=True) \
         .execute()
-    return res.data
+    data = getattr(res, "data", [])
+    return data if isinstance(data, list) else []
 
 @router.delete("/sessions/{file_id}")
 async def clear_sessions(file_id: str, current_user: dict = Depends(get_current_user)):

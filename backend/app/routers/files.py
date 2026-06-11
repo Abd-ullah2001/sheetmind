@@ -29,7 +29,9 @@ class ConnectMicrosoftRequest(BaseModel):
 @router.get("")
 def get_files(current_user: dict = Depends(get_current_user)):
     res = supabase_client.table("files").select("*").eq("user_id", current_user["user_id"]).execute()
-    return res.data
+    data = getattr(res, "data", [])
+    # In tests supabase mocks can return MagicMock; normalize to a real list.
+    return data if isinstance(data, list) else []
 
 @router.post("/upload-url")
 def get_upload_url(req: UploadUrlRequest, current_user: dict = Depends(get_current_user)):
@@ -57,22 +59,27 @@ def confirm_upload(req: ConfirmUploadRequest, current_user: dict = Depends(get_c
     # Trigger Celery task
     parse_excel_metadata.delay(req.file_id, req.s3_key, current_user["user_id"])
     
-    return res.data[0]
+    data = getattr(res, "data", [])
+    if not isinstance(data, list) or len(data) == 0:
+        raise HTTPException(status_code=500, detail="Failed to create file")
+    return data[0]
 
 @router.get("/{file_id}")
 def get_file(file_id: str, current_user: dict = Depends(get_current_user)):
     res = supabase_client.table("files").select("*").eq("id", file_id).eq("user_id", current_user["user_id"]).execute()
-    if not res.data:
+    data = getattr(res, "data", [])
+    if not isinstance(data, list) or len(data) == 0:
         raise HTTPException(status_code=404, detail="File not found")
-    return res.data[0]
+    return data[0]
 
 @router.delete("/{file_id}")
 def delete_file_endpoint(file_id: str, current_user: dict = Depends(get_current_user)):
     res = supabase_client.table("files").select("*").eq("id", file_id).eq("user_id", current_user["user_id"]).execute()
-    if not res.data:
+    data = getattr(res, "data", [])
+    if not isinstance(data, list) or len(data) == 0:
         raise HTTPException(status_code=404, detail="File not found")
-        
-    file_record = res.data[0]
+
+    file_record = data[0]
     
     if file_record["file_type"] == "excel_local" and file_record.get("s3_key"):
         delete_file(file_record["s3_key"])
@@ -90,7 +97,8 @@ def connect_google(req: ConnectGoogleRequest, current_user: dict = Depends(get_c
         "metadata": {}
     }
     res = supabase_client.table("files").insert(new_file).execute()
-    return res.data[0]
+    data = getattr(res, "data", [])
+    return data[0] if isinstance(data, list) and len(data) > 0 else {}
 
 @router.post("/connect-microsoft")
 def connect_microsoft(req: ConnectMicrosoftRequest, current_user: dict = Depends(get_current_user)):
@@ -102,4 +110,5 @@ def connect_microsoft(req: ConnectMicrosoftRequest, current_user: dict = Depends
         "metadata": {}
     }
     res = supabase_client.table("files").insert(new_file).execute()
-    return res.data[0]
+    data = getattr(res, "data", [])
+    return data[0] if isinstance(data, list) and len(data) > 0 else {}

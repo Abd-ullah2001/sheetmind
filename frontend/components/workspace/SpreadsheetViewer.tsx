@@ -11,7 +11,6 @@ import { LoadingSpinner } from "@/components/shared/LoadingSpinner";
 
 type Row = Record<string, unknown>;
 
-// AG Grid v34+ can require explicit module registration depending on build config.
 ModuleRegistry.registerModules([ClientSideRowModelModule]);
 
 function columnName(index: number) {
@@ -51,10 +50,24 @@ export function SpreadsheetViewer({ fileId, token }: { fileId: string; token?: s
   }, [rows]);
 
   return (
-    <div className="relative h-full min-h-0 flex-1 bg-white">
-      {isLoading ? <div className="absolute inset-0 z-10 flex items-center justify-center bg-white/70"><LoadingSpinner className="h-6 w-6 text-primary" /></div> : null}
-      {error ? <div className="m-4 rounded-lg border border-red-200 bg-red-50 p-4 text-sm text-red-700">{error}</div> : null}
-      <div className="ag-theme-quartz h-full w-full"><AgGridReact<Row> rowData={rows} columnDefs={columns} defaultColDef={{ sortable: false, filter: false }} suppressCellFocus animateRows={false} /></div>
+    <div className="relative h-full min-h-0 flex-1 bg-[var(--color-pure-white)]">
+      {isLoading ? (
+        <div className="absolute inset-0 z-10 flex items-center justify-center bg-[var(--color-pure-white)]/70">
+          <LoadingSpinner className="h-6 w-6" />
+        </div>
+      ) : null}
+      {error ? (
+        <div className="m-4 rounded-[8px] border border-red-200 bg-red-50 p-4 text-[14px] text-red-700">{error}</div>
+      ) : null}
+      <div className="ag-theme-quartz h-full w-full">
+        <AgGridReact<Row>
+          rowData={rows}
+          columnDefs={columns}
+          defaultColDef={{ sortable: false, filter: false }}
+          suppressCellFocus
+          animateRows={false}
+        />
+      </div>
     </div>
   );
 }
