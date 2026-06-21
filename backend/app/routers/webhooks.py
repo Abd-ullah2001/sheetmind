@@ -5,7 +5,7 @@ import secrets
 from fastapi import APIRouter, Depends, HTTPException, Request
 from typing import List
 from app.middleware.auth_middleware import get_current_user
-from app.database import supabase_client
+import app.database
 from app.models.webhook import WebhookConfig, WebhookConfigCreate, InboundWebhookRequest
 from app.services.agent_service import run_agent_query
 
@@ -16,7 +16,7 @@ async def list_webhooks(current_user: dict = Depends(get_current_user)):
     """
     Returns all webhook configurations for the current user.
     """
-    res = supabase_client.table("webhook_configs") \
+    res = app.database.supabase_client.table("webhook_configs") \
         .select("*") \
         .eq("user_id", current_user["user_id"]) \
         .execute()
@@ -40,7 +40,7 @@ async def create_webhook(config: WebhookConfigCreate, current_user: dict = Depen
         "created_at": datetime.datetime.utcnow().isoformat(),
     }
 
-    res = supabase_client.table("webhook_configs").insert(new_webhook).execute()
+    res = app.database.supabase_client.table("webhook_configs").insert(new_webhook).execute()
 
     data = getattr(res, "data", [])
     if isinstance(data, list) and len(data) > 0:
@@ -69,7 +69,7 @@ async def update_webhook(webhook_id: str, config: WebhookConfigCreate, current_u
         "events": config.events,
         "active": config.active
     }
-    res = supabase_client.table("webhook_configs") \
+    res = app.database.supabase_client.table("webhook_configs") \
         .update(update_data) \
         .eq("id", webhook_id) \
         .eq("user_id", current_user["user_id"]) \
@@ -84,7 +84,7 @@ async def delete_webhook(webhook_id: str, current_user: dict = Depends(get_curre
     """
     Deletes a webhook configuration.
     """
-    supabase_client.table("webhook_configs") \
+    app.database.supabase_client.table("webhook_configs") \
         .delete() \
         .eq("id", webhook_id) \
         .eq("user_id", current_user["user_id"]) \
@@ -99,7 +99,7 @@ async def inbound_webhook(request: InboundWebhookRequest):
     External endpoint to trigger an agent query via webhook (e.g., from Zapier).
     """
     # 1. Fetch user's webhook config to get the secret
-    res = supabase_client.table("webhook_configs") \
+    res = app.database.supabase_client.table("webhook_configs") \
         .select("secret") \
         .eq("user_id", request.user_id) \
         .eq("active", True) \

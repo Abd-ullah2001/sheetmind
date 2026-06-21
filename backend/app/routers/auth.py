@@ -11,7 +11,7 @@ from app.services.auth_service import (
     store_oauth_tokens
 )
 from app.middleware.auth_middleware import get_current_user
-from app.database import supabase_client
+import app.database
 
 router = APIRouter(prefix="/auth", tags=["auth"])
 settings = get_settings()
@@ -153,7 +153,7 @@ async def microsoft_callback(params: OAuthCallbackParams):
 
 @router.get("/me")
 def get_me(current_user: dict = Depends(get_current_user)):
-    res = supabase_client.table("users").select("*").eq("id", current_user["user_id"]).execute()
+    res = app.database.supabase_client.table("users").select("*").eq("id", current_user["user_id"]).execute()
     data = getattr(res, "data", None)
 
     # Tests mock supabase as MagicMock where res.data is sometimes a list (preferred) and
@@ -180,5 +180,5 @@ def get_me(current_user: dict = Depends(get_current_user)):
 @router.post("/logout")
 def logout(current_user: dict = Depends(get_current_user)):
     # Delete oauth tokens for this provider
-    supabase_client.table("oauth_tokens").delete().eq("user_id", current_user["user_id"]).eq("provider", current_user["provider"]).execute()
+    app.database.supabase_client.table("oauth_tokens").delete().eq("user_id", current_user["user_id"]).eq("provider", current_user["provider"]).execute()
     return {"message": "logged out"}

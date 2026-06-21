@@ -5,7 +5,7 @@ from jose import jwt, JWTError
 import msal
 
 from app.config import get_settings
-from app.database import supabase_client
+import app.database
 
 settings = get_settings()
 
@@ -38,13 +38,13 @@ def verify_jwt_token(token: str) -> dict:
 
 def upsert_user(email: str, name: str, avatar_url: str, provider: str) -> dict:
     # Check if user exists
-    res = supabase_client.table("users").select("*").eq("email", email).execute()
+    res = app.database.supabase_client.table("users").select("*").eq("email", email).execute()
     users = res.data
     
     if len(users) > 0:
         user = users[0]
         # Update last_login
-        supabase_client.table("users").update({"last_login": "now()"}).eq("id", user["id"]).execute()
+        app.database.supabase_client.table("users").update({"last_login": "now()"}).eq("id", user["id"]).execute()
         return user
     else:
         # Insert new user
@@ -54,7 +54,7 @@ def upsert_user(email: str, name: str, avatar_url: str, provider: str) -> dict:
             "avatar_url": avatar_url,
             "provider": provider
         }
-        res = supabase_client.table("users").insert(new_user).execute()
+        res = app.database.supabase_client.table("users").insert(new_user).execute()
         return res.data[0]
 
 def store_oauth_tokens(user_id: str, provider: str, access_token: str, refresh_token: str, expires_at: datetime.datetime, scopes: list):
@@ -69,10 +69,10 @@ def store_oauth_tokens(user_id: str, provider: str, access_token: str, refresh_t
     # Supabase UPSERT based on user_id + provider
     # Note: supabase-py doesn't cleanly expose ON CONFLICT out of the box in simple .insert(), 
     # but we can use .upsert()
-    supabase_client.table("oauth_tokens").upsert(token_data, on_conflict="user_id,provider").execute()
+    app.database.supabase_client.table("oauth_tokens").upsert(token_data, on_conflict="user_id,provider").execute()
 
 def get_oauth_tokens(user_id: str, provider: str) -> str:
-    res = supabase_client.table("oauth_tokens").select("*").eq("user_id", user_id).eq("provider", provider).execute()
+    res = app.database.supabase_client.table("oauth_tokens").select("*").eq("user_id", user_id).eq("provider", provider).execute()
     data = getattr(res, "data", res.data)
     if not isinstance(data, list) or len(data) == 0:
         raise ValueError("No tokens found")
@@ -112,7 +112,7 @@ def refresh_google_token(user_id: str, refresh_token: str) -> str:
     expires_at = datetime.datetime.utcnow() + datetime.timedelta(seconds=expires_in)
     
     # Only updates access_token and expires_at
-    supabase_client.table("oauth_tokens").update({
+    app.database.supabase_client.table("oauth_tokens").update({
         "access_token": new_access_token,
         "expires_at": expires_at.isoformat(),
         "updated_at": "now()"
@@ -141,7 +141,7 @@ def refresh_microsoft_token(user_id: str, refresh_token: str) -> str:
     expires_in = result.get("expires_in", 3600)
     expires_at = datetime.datetime.utcnow() + datetime.timedelta(seconds=expires_in)
     
-    supabase_client.table("oauth_tokens").update({
+    app.database.supabase_client.table("oauth_tokens").update({
         "access_token": new_access_token,
         "refresh_token": new_refresh_token,
         "expires_at": expires_at.isoformat(),

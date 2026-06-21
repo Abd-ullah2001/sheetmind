@@ -26,7 +26,9 @@ export function ChatAgent({ fileId, fileName, token, onClose }: ChatAgentProps) 
   const [isLoading, setIsLoading] = useState(false);
   const [isMinimized, setIsMinimized] = useState(false);
   const scrollRef = useRef<HTMLDivElement>(null);
-  const sessionIdRef = useRef<string>(typeof crypto !== "undefined" && "randomUUID" in crypto ? crypto.randomUUID() : "");
+  const sessionIdRef = useRef<string>(
+    typeof crypto !== "undefined" && "randomUUID" in crypto ? crypto.randomUUID() : ""
+  );
 
   useEffect(() => {
     if (scrollRef.current) {
@@ -48,7 +50,12 @@ export function ChatAgent({ fileId, fileName, token, onClose }: ChatAgentProps) 
     setIsLoading(true);
 
     try {
-      const data = await api.runAgentQuery(fileId, input, sessionIdRef.current || undefined, token);
+      const data = await api.runAgentQuery(
+        fileId,
+        input,
+        sessionIdRef.current || undefined,
+        token
+      );
 
       const assistantMessage: Message = {
         role: "assistant",
@@ -60,7 +67,10 @@ export function ChatAgent({ fileId, fileName, token, onClose }: ChatAgentProps) 
     } catch (error) {
       const errorMessage: Message = {
         role: "assistant",
-        content: error instanceof Error ? error.message : "Sorry, I encountered an error while processing your request.",
+        content:
+          error instanceof Error
+            ? error.message
+            : "Sorry, I encountered an error while processing your request.",
         timestamp: new Date(),
       };
       setMessages((prev) => [...prev, errorMessage]);
@@ -98,7 +108,11 @@ export function ChatAgent({ fileId, fileName, token, onClose }: ChatAgentProps) 
               setIsMinimized(!isMinimized);
             }}
           >
-            {isMinimized ? <Maximize2 className="h-4 w-4" /> : <Minimize2 className="h-4 w-4" />}
+            {isMinimized ? (
+              <Maximize2 className="h-4 w-4" />
+            ) : (
+              <Minimize2 className="h-4 w-4" />
+            )}
           </Button>
           <Button
             variant="ghost"
@@ -126,23 +140,11 @@ export function ChatAgent({ fileId, fileName, token, onClose }: ChatAgentProps) 
                   <Bot className="h-8 w-8" />
                 </div>
                 <p className="text-[14px] font-medium text-[var(--color-graphite)]">
-                  Hi! I&apos;m your SheetMind agent. <br />
-                  How can I help you with <b>{fileName}</b>?
+                  You&apos;re chatting with the SheetMind agent for{" "}
+                  <b>{fileName}</b>.
+                  <br />
+                  Ask for analysis, updates, or data cleanup and I&apos;ll handle the details.
                 </p>
-                <div className="mt-4 grid w-full gap-2">
-                  <button
-                    onClick={() => setInput("Summarize this spreadsheet")}
-                    className="rounded-[8px] border border-[var(--color-iris-edge)] bg-[var(--color-pure-white)] px-3 py-2 text-left text-[12px] transition-colors hover:bg-[var(--color-lavender-wash)] hover:border-[var(--color-violet-glow)]"
-                  >
-                    &quot;Summarize this spreadsheet&quot;
-                  </button>
-                  <button
-                    onClick={() => setInput("Add a new column for totals")}
-                    className="rounded-[8px] border border-[var(--color-iris-edge)] bg-[var(--color-pure-white)] px-3 py-2 text-left text-[12px] transition-colors hover:bg-[var(--color-lavender-wash)] hover:border-[var(--color-violet-glow)]"
-                  >
-                    &quot;Add a new column for totals&quot;
-                  </button>
-                </div>
               </div>
             )}
 
@@ -154,24 +156,41 @@ export function ChatAgent({ fileId, fileName, token, onClose }: ChatAgentProps) 
                   m.role === "user" ? "flex-row-reverse" : "flex-row"
                 )}
               >
-                <div className={cn(
-                  "flex h-8 w-8 shrink-0 select-none items-center justify-center rounded-[8px] border shadow-sm",
-                  m.role === "user" ? "bg-[var(--color-pure-white)] text-[var(--color-graphite)] border-[var(--color-iris-edge)]" : "bg-[var(--color-aubergine-core)] text-[var(--color-pure-white)] border-[var(--color-aubergine-core)]"
-                )}>
-                  {m.role === "user" ? <User className="h-4 w-4" /> : <Bot className="h-4 w-4" />}
+                <div
+                  className={cn(
+                    "flex h-8 w-8 shrink-0 select-none items-center justify-center rounded-[8px] border shadow-sm",
+                    m.role === "user"
+                      ? "bg-[var(--color-pure-white)] text-[var(--color-graphite)] border-[var(--color-iris-edge)]"
+                      : "bg-[var(--color-aubergine-core)] text-[var(--color-pure-white)] border-[var(--color-aubergine-core)]"
+                  )}
+                >
+                  {m.role === "user" ? (
+                    <User className="h-4 w-4" />
+                  ) : (
+                    <Bot className="h-4 w-4" />
+                  )}
                 </div>
-                <div className={cn(
-                  "flex flex-col gap-1 max-w-[80%]",
-                  m.role === "user" ? "items-end" : "items-start"
-                )}>
-                  <div className={cn(
-                    "rounded-[16px] px-4 py-2 text-[14px]",
-                    m.role === "user" ? "bg-[var(--color-aubergine-core)] text-[var(--color-pure-white)]" : "bg-[var(--color-pure-white)] border border-[var(--color-iris-edge)] text-[var(--color-midnight-plum)]"
-                  )}>
+                <div
+                  className={cn(
+                    "flex flex-col gap-1 max-w-[80%]",
+                    m.role === "user" ? "items-end" : "items-start"
+                  )}
+                >
+                  <div
+                    className={cn(
+                      "rounded-[16px] px-4 py-2 text-[14px]",
+                      m.role === "user"
+                        ? "bg-[var(--color-aubergine-core)] text-[var(--color-pure-white)]"
+                        : "bg-[var(--color-pure-white)] border border-[var(--color-iris-edge)] text-[var(--color-midnight-plum)]"
+                    )}
+                  >
                     {m.content}
                   </div>
                   <span className="text-[10px] text-[var(--color-fog)]">
-                    {m.timestamp.toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' })}
+                    {m.timestamp.toLocaleTimeString([], {
+                      hour: "2-digit",
+                      minute: "2-digit",
+                    })}
                   </span>
                 </div>
               </div>

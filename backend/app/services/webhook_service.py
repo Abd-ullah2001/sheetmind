@@ -3,14 +3,14 @@ import hashlib
 import json
 import httpx
 from typing import List, Dict, Any
-from app.database import supabase_client
+import app.database
 from app.tasks.celery_app import celery_app
 
 def get_active_webhooks(user_id: str, event_type: str):
     """
     Fetches active webhooks for a user and event type.
     """
-    res = supabase_client.table("webhook_configs") \
+    res = app.database.supabase_client.table("webhook_configs") \
         .select("*") \
         .eq("user_id", user_id) \
         .eq("active", True) \

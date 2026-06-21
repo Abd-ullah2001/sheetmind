@@ -3,7 +3,7 @@ from pydantic import BaseModel
 from typing import Optional, Dict, Any
 
 from app.middleware.auth_middleware import get_current_user
-from app.database import supabase_client
+import app.database
 from app.services import excel_service
 from app.services import sheets_service
 from app.services.auth_service import get_oauth_tokens
@@ -15,7 +15,7 @@ class OperationRequest(BaseModel):
     parameters: Dict[str, Any]
 
 def _get_file_and_routing_context(file_id: str, user_id: str):
-    res = supabase_client.table("files").select("*").eq("id", file_id).eq("user_id", user_id).execute()
+    res = app.database.supabase_client.table("files").select("*").eq("id", file_id).eq("user_id", user_id).execute()
     if not res.data:
         raise HTTPException(status_code=404, detail="File not found")
         

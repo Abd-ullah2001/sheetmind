@@ -41,7 +41,47 @@ dependencies = [
 [tool.uv]
 managed = true
 
+[dependency-groups]
+dev = [
+    "ruff>=0.4.0",
+    "pyright>=1.1.360",
+    "bandit>=1.7.0",
+]
+
 [tool.pyright]
 venvPath = "."
 venv = ".venv"
 extraPaths = ["backend"]
+typeCheckingMode = "strict"
+
+[tool.ruff]
+target-version = "py312"
+line-length = 120
+
+[tool.ruff.lint]
+select = ["ALL"]
+ignore = [
+    "COM812", "ISC001",  # handled by formatter
+    "D203", "D212", "D213", "D214", "D215", "D406", "D407", "D408", "D409", "D410", "D411", "D412", "D413",  # conflicts
+    "ANN101", "ANN102",  # Python 3.12+ self/cls type
+    "ANN401",  # too restrictive
+    "S101",  # allow assert in tests (bandit)
+]
+unsafe-fixes = false
+
+[tool.ruff.format]
+quote-style = "double"
+indent-style = "space"
+line-ending = "lf"
+
+[tool.bandit]
+exclude_dirs = ["backend/tests", ".venv"]
+skips = ["B101"]
+
+[tool.pytest.ini_options]
+testpaths = ["backend/tests"]
+python_files = ["test_*.py"]
+python_classes = ["Test*"]
+python_functions = ["test_*"]
+filterwarnings = ["default"]
+markers = ["asyncio: mark test as asyncio"]

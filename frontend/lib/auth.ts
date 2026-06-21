@@ -47,8 +47,9 @@ export const authOptions: NextAuthOptions = {
     })
   ],
   callbacks: {
-    async jwt({ token, account }) {
-      if (account?.provider && account.access_token) {
+    async jwt({ token, account, trigger }) {
+      // Only exchange tokens on the initial sign-in.
+      if (trigger === "signIn" && account?.provider && account.access_token) {
         const backend = await exchangeOAuthTokens(account.provider, account);
         token.backendToken = backend.access_token;
         token.provider = account.provider;
@@ -68,6 +69,9 @@ export const authOptions: NextAuthOptions = {
       return session;
     }
   },
-  pages: { signIn: "/" },
+  pages: {
+    signIn: "/",
+    error: "/?error=Callback"
+  },
   session: { strategy: "jwt" }
 };

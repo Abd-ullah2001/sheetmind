@@ -3,7 +3,7 @@ from typing import Optional
 from app.middleware.auth_middleware import get_current_user
 from app.services.agent_service import run_agent_query
 from app.models.query import QueryRequest, QueryResponse
-from app.database import supabase_client
+import app.database
 
 router = APIRouter(prefix="/agent", tags=["agent"])
 
@@ -28,7 +28,7 @@ async def get_sessions(file_id: str, current_user: dict = Depends(get_current_us
     """
     Returns the conversation history for a specific file.
     """
-    res = supabase_client.table("agent_sessions") \
+    res = app.database.supabase_client.table("agent_sessions") \
         .select("*") \
         .eq("user_id", current_user["user_id"]) \
         .eq("file_id", file_id) \
@@ -42,7 +42,7 @@ async def clear_sessions(file_id: str, current_user: dict = Depends(get_current_
     """
     Clears the conversation history for a specific file.
     """
-    supabase_client.table("agent_sessions") \
+    app.database.supabase_client.table("agent_sessions") \
         .delete() \
         .eq("user_id", current_user["user_id"]) \
         .eq("file_id", file_id) \

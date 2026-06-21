@@ -64,4 +64,6 @@ CLAUDE.md
 __pycache__
 *.pyc
 .next
-.github
+.github/
+!.github/
+!.github/**

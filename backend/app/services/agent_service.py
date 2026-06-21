@@ -7,8 +7,8 @@ from langchain_openai import ChatOpenAI
 from langgraph.prebuilt import create_react_agent
 
 from app.config import get_settings
-from app.database import supabase_client
-from app.redis_client import redis_client
+import app.database
+import app.redis_client
 from app.tools import ALL_TOOLS
 from app.services.log_service import log_query
 from app.services import sheets_service, excel_service
@@ -35,9 +35,9 @@ def _invalidate_file_cache(user_id: str, file_id: str):
     pattern = f"agent:{user_id}:{file_id}:*"
     cursor = 0
     while True:
-        cursor, keys = redis_client.scan(cursor=cursor, match=pattern, count=100)
+        cursor, keys = app.redis_client.redis_client.scan(cursor=cursor, match=pattern, count=100)
         if keys:
-            redis_client.delete(*keys)
+            app.redis_client.redis_client.delete(*keys)
         if cursor == 0:
             break
 
@@ -52,7 +52,7 @@ def run_agent_query(user_id: str, file_id: str, query: str, session_id: str = No
     except Exception:
         session_id = str(uuid.uuid4())
         
-    res = supabase_client.table("agent_sessions").select("*").eq("id", session_id).execute()
+    res = app.database.supabase_client.table("agent_sessions").select("*").eq("id", session_id).execute()
     data = getattr(res, "data", [])
     # Supabase mock in tests may return a MagicMock with a `.data` attribute that
     # itself is a MagicMock; only treat real lists as history rows.
@@ -70,20 +70,20 @@ def run_agent_query(user_id: str, file_id: str, query: str, session_id: str = No
             "file_id": file_id,
             "conversation": []
         }
-        supabase_client.table("agent_sessions").insert(new_session).execute()
+        app.database.supabase_client.table("agent_sessions").insert(new_session).execute()
         
     # Check cache
     query_hash = hashlib.sha256(query.encode()).hexdigest()
     cache_key = f"agent:{user_id}:{file_id}:{query_hash}"
     
-    cached_val = redis_client.get(cache_key)
+    cached_val = app.redis_client.redis_client.get(cache_key)
     if cached_val:
         data = json.loads(cached_val)
         data["cached"] = True
         return data
 
     # 3. Inject file context
-    file_res = supabase_client.table("files").select("*").eq("id", file_id).execute()
+    file_res = app.database.supabase_client.table("files").select("*").eq("id", file_id).execute()
     file_data = getattr(file_res, "data", [])
     if not isinstance(file_data, list) or len(file_data) == 0:
         raise ValueError("File not found")
@@ -168,7 +168,7 @@ When calling tools, always provide user_id='{user_id}' and file_id='{file_id}'."
     # 6. Update session
     history.append({"role": "user", "content": query})
     history.append({"role": "assistant", "content": output_text})
-    supabase_client.table("agent_sessions").update({
+    app.database.supabase_client.table("agent_sessions").update({
         "conversation": history,
         "updated_at": "now()"
     }).eq("id", session_id).execute()
@@ -194,7 +194,7 @@ When calling tools, always provide user_id='{user_id}' and file_id='{file_id}'."
     }
     
     # Store in cache
-    redis_client.set(cache_key, json.dumps(result_data), ex=300)
+    app.redis_client.redis_client.set(cache_key, json.dumps(result_data), ex=300)
     
     # If tools were called that might modify the file, invalidate cache
     # For now, invalidate on every non-cached query to be safe

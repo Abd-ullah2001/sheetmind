@@ -7,9 +7,11 @@ from unittest.mock import patch, MagicMock
 
 @pytest.fixture
 def authed_client():
-    with patch("app.database.supabase_client") as mock_supabase, \
-         patch("app.redis_client.redis_client") as mock_redis, \
-         patch("app.s3_client.s3_client") as mock_s3:
+    mock_supabase = MagicMock()
+    mock_redis = MagicMock()
+    with patch("app.database.supabase_client", mock_supabase), \
+         patch("app.redis_client.redis_client", mock_redis), \
+         patch("app.s3_client.s3_client"):
         from fastapi.testclient import TestClient
         from app.main import app
         from app.services.auth_service import create_jwt_token
@@ -44,6 +46,7 @@ def test_agent_query_success(mock_llm_class, mock_init_agent, authed_client):
     # Mock Redis cache miss
     mock_redis.get.return_value = None
     mock_redis.set.return_value = True
+    mock_redis.scan.return_value = (0, [])
 
     # Mock Supabase calls
     mock_table = MagicMock()
