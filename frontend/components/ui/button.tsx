@@ -10,28 +10,28 @@ export const Button = React.forwardRef<HTMLButtonElement, ButtonProps>(
   ({ className, variant = "default", size = "md", ...props }, ref) => {
     const variants = {
       default:
-        "bg-[var(--color-aubergine-core)] text-[var(--color-pure-white)] hover:bg-[var(--color-plum-shadow)] shadow-sm",
+        "bg-[var(--color-primary)] text-white hover:bg-[var(--color-primary-hover)] shadow-sm",
       secondary:
-        "bg-[var(--color-lavender-wash)] text-[var(--color-midnight-plum)] hover:bg-[var(--color-lilac-veil)]",
+        "bg-[var(--color-surface-soft)] text-[var(--color-text-primary)] hover:bg-[var(--color-border)]",
       ghost:
-        "text-[var(--color-midnight-plum)] hover:bg-[var(--color-lavender-wash)]",
+        "text-[var(--color-text-primary)] hover:bg-[var(--color-surface-soft)]",
       destructive:
-        "bg-[var(--color-magenta-pulse)] text-[var(--color-pure-white)] hover:bg-[var(--color-plum-shadow)]",
+        "bg-[var(--color-error)] text-white hover:bg-red-600",
       outline:
-        "border border-[var(--color-iris-mid)] bg-[var(--color-pure-white)] text-[var(--color-iris-mid)] hover:bg-[var(--color-lavender-wash)]",
+        "border border-[var(--color-border)] bg-white text-[var(--color-text-primary)] hover:bg-[var(--color-surface-soft)]",
       "ghost-cta":
-        "bg-[var(--color-pure-white)] text-[var(--color-iris-mid)] border border-[var(--color-iris-mid)] hover:bg-[var(--color-lavender-wash)]"
+        "bg-white text-[var(--color-primary)] border border-[var(--color-primary)] hover:bg-[var(--color-primary-light)]"
     };
     const sizes = {
-      sm: "h-8 px-3 text-[14px]",
-      md: "h-10 px-[18px] text-[14px] tracking-[0.012em]",
-      icon: "h-9 w-9 p-0"
+      sm: "h-8 px-3 text-[14px] rounded-md",
+      md: "h-10 px-[18px] text-[14px] tracking-[0.01em] rounded-md",
+      icon: "h-9 w-9 p-0 rounded-md"
     };
     return (
       <button
         ref={ref}
         className={cn(
-          "inline-flex items-center justify-center gap-2 rounded-[4px] font-semibold transition-colors disabled:pointer-events-none disabled:opacity-50 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[var(--color-aubergine-core)]",
+          "inline-flex items-center justify-center gap-2 font-semibold transition-colors disabled:pointer-events-none disabled:opacity-50 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[var(--color-primary)] focus-visible:ring-offset-2",
           variants[variant],
           sizes[size],
           className

@@ -2,5 +2,5 @@ import { Loader2 } from "lucide-react";
 import { cn } from "@/lib/utils";
 
 export function LoadingSpinner({ className }: { className?: string }) {
-  return <Loader2 className={cn("h-4 w-4 animate-spin text-[var(--color-aubergine-core)]", className)} aria-label="Loading" />;
+  return <Loader2 className={cn("h-4 w-4 animate-spin text-[var(--color-primary)]", className)} aria-label="Loading" />;
 }

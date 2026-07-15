@@ -16,10 +16,12 @@ from app.services.auth_service import get_oauth_tokens
 
 settings = get_settings()
 
+
 # Compatibility for unit tests (tests patch app.services.agent_service.initialize_agent)
 # The production code constructs the agent inline via create_react_agent.
 def initialize_agent(llm, tools, prompt: str):
     return create_react_agent(llm, tools=tools, prompt=prompt)
+
 
 def get_llm():
 
@@ -27,38 +29,50 @@ def get_llm():
         base_url=settings.nvidia_base_url,
         api_key=settings.nvidia_api_key,
         model=settings.nvidia_model,
-        temperature=0
+        temperature=0,
     )
+
 
 def _invalidate_file_cache(user_id: str, file_id: str):
     # Invalidate all keys matching agent:{user_id}:{file_id}:*
     pattern = f"agent:{user_id}:{file_id}:*"
     cursor = 0
     while True:
-        cursor, keys = app.redis_client.redis_client.scan(cursor=cursor, match=pattern, count=100)
+        cursor, keys = app.redis_client.redis_client.scan(
+            cursor=cursor, match=pattern, count=100
+        )
         if keys:
             app.redis_client.redis_client.delete(*keys)
         if cursor == 0:
             break
 
-def run_agent_query(user_id: str, file_id: str, query: str, session_id: str = None):
+
+def run_agent_query(
+    user_id: str, file_id: str, query: str, session_id: str | None = None
+):
     start_time = time.time()
-    
+
     # 1. Fetch conversation history
     # `agent_sessions.id` is a UUID column in Supabase; callers sometimes send non-UUID strings.
     # Normalize to a UUID to avoid Postgres "invalid input syntax for type uuid" errors.
     try:
-        session_id = str(uuid.UUID(str(session_id))) if session_id else str(uuid.uuid4())
+        session_id = (
+            str(uuid.UUID(str(session_id))) if session_id else str(uuid.uuid4())
+        )
     except Exception:
         session_id = str(uuid.uuid4())
-        
-    res = app.database.supabase_client.table("agent_sessions").select("*").eq("id", session_id).execute()
+
+    res = (
+        app.database.supabase_client.table("agent_sessions")
+        .select("*")
+        .eq("id", session_id)
+        .execute()
+    )
     data = getattr(res, "data", [])
     # Supabase mock in tests may return a MagicMock with a `.data` attribute that
     # itself is a MagicMock; only treat real lists as history rows.
     if not isinstance(data, list):
         data = []
-
 
     if isinstance(data, list) and len(data) > 0:
         history = data[0].get("conversation", [])
@@ -68,14 +82,16 @@ def run_agent_query(user_id: str, file_id: str, query: str, session_id: str = No
             "id": session_id,
             "user_id": user_id,
             "file_id": file_id,
-            "conversation": []
+            "conversation": [],
         }
-        app.database.supabase_client.table("agent_sessions").insert(new_session).execute()
-        
+        app.database.supabase_client.table("agent_sessions").insert(
+            new_session
+        ).execute()
+
     # Check cache
     query_hash = hashlib.sha256(query.encode()).hexdigest()
     cache_key = f"agent:{user_id}:{file_id}:{query_hash}"
-    
+
     cached_val = app.redis_client.redis_client.get(cache_key)
     if cached_val:
         data = json.loads(cached_val)
@@ -83,7 +99,12 @@ def run_agent_query(user_id: str, file_id: str, query: str, session_id: str = No
         return data
 
     # 3. Inject file context
-    file_res = app.database.supabase_client.table("files").select("*").eq("id", file_id).execute()
+    file_res = (
+        app.database.supabase_client.table("files")
+        .select("*")
+        .eq("id", file_id)
+        .execute()
+    )
     file_data = getattr(file_res, "data", [])
     if not isinstance(file_data, list) or len(file_data) == 0:
         raise ValueError("File not found")
@@ -96,7 +117,9 @@ def run_agent_query(user_id: str, file_id: str, query: str, session_id: str = No
     try:
         if file_type == "google_sheets":
             access_token = get_oauth_tokens(user_id, "google")
-            info = sheets_service.get_workbook_info(file_record.get("external_id"), access_token)
+            info = sheets_service.get_workbook_info(
+                file_record.get("external_id"), access_token
+            )
             if info.get("success") and info.get("result"):
                 sheet_names = info["result"].get("sheets") or sheet_names
         elif file_type == "excel_local":
@@ -106,8 +129,8 @@ def run_agent_query(user_id: str, file_id: str, query: str, session_id: str = No
     except Exception:
         # If token lookup or API fails, keep best-effort metadata and let tools fail with a clear error later.
         pass
-    
-    system_prompt = f"""You are a spreadsheet assistant. The user is working on a file called {file_record.get('display_name')}.
+
+    system_prompt = f"""You are a spreadsheet assistant. The user is working on a file called {file_record.get("display_name")}.
 It is a {file_type} file with the following sheets: {sheet_names}.
 Use the available tools to fulfill the user's request.
 Always confirm what you did after completing each operation.
@@ -131,7 +154,7 @@ When calling tools, always provide user_id='{user_id}' and file_id='{file_id}'."
             llm_response="",
             latency_ms=latency,
             status="error",
-            error_message=str(e)
+            error_message=str(e),
         )
         # IMPORTANT: tests expect HTTP 200 for mocked success flows;
         # ensure we return a well-formed success-like response when the
@@ -142,12 +165,9 @@ When calling tools, always provide user_id='{user_id}' and file_id='{file_id}'."
             "session_id": session_id,
             "tokens_used": 0,
             "status": "error",
-            "error": str(e)
+            "error": str(e),
         }
 
-
-
-        
     # LangGraph returns a structured message list, but unit tests mock invoke()
     # with an "output" string and may not provide "messages".
     tools_called = []
@@ -162,17 +182,15 @@ When calling tools, always provide user_id='{user_id}' and file_id='{file_id}'."
             # Last resort: stringify
             output_text = str(response)
 
-    
     latency = int((time.time() - start_time) * 1000)
-    
+
     # 6. Update session
     history.append({"role": "user", "content": query})
     history.append({"role": "assistant", "content": output_text})
-    app.database.supabase_client.table("agent_sessions").update({
-        "conversation": history,
-        "updated_at": "now()"
-    }).eq("id", session_id).execute()
-    
+    app.database.supabase_client.table("agent_sessions").update(
+        {"conversation": history, "updated_at": "now()"}
+    ).eq("id", session_id).execute()
+
     # Log the query
     log_query(
         user_id=user_id,
@@ -181,23 +199,23 @@ When calling tools, always provide user_id='{user_id}' and file_id='{file_id}'."
         tools_called=tools_called,
         llm_response=output_text,
         latency_ms=latency,
-        status="success"
+        status="success",
     )
-    
+
     result_data = {
         "response": output_text,
         "tools_called": tools_called,
         "session_id": session_id,
-        "tokens_used": 0, # Placeholder
+        "tokens_used": 0,  # Placeholder
         "status": "success",
-        "error": None
+        "error": None,
     }
-    
+
     # Store in cache
     app.redis_client.redis_client.set(cache_key, json.dumps(result_data), ex=300)
-    
+
     # If tools were called that might modify the file, invalidate cache
     # For now, invalidate on every non-cached query to be safe
     _invalidate_file_cache(user_id, file_id)
-    
+
     return result_data

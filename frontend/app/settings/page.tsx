@@ -44,17 +44,17 @@ export default function SettingsPage() {
   }
 
   return (
-    <div className="min-h-screen bg-[var(--color-cream-canvas)]">
+    <div className="min-h-screen bg-white">
       <Navbar />
       <main className="mx-auto max-w-page px-4 py-8">
-        <h1 className="font-avant-garde text-[32px] font-bold text-[var(--color-midnight-plum)]">Settings</h1>
+        <h1 className="text-[32px] font-semibold text-[var(--color-text-primary)]">Settings</h1>
         <Tabs.Root defaultValue="account" className="mt-6">
-          <Tabs.List className="inline-flex rounded-[8px] border border-[var(--color-iris-edge)] bg-[var(--color-pure-white)] p-1">
+          <Tabs.List className="inline-flex rounded-[var(--radius-control)] border border-[var(--color-border)] bg-white p-1">
             {["account", "connections", "webhooks"].map((tab) => (
               <Tabs.Trigger
                 key={tab}
                 value={tab}
-                className="rounded-[4px] px-4 py-2 text-[14px] font-semibold capitalize text-[var(--color-graphite)] data-[state=active]:bg-[var(--color-aubergine-core)] data-[state=active]:text-[var(--color-pure-white)]"
+                className="rounded-md px-4 py-2 text-[14px] font-semibold capitalize text-[var(--color-text-secondary)] data-[state=active]:bg-[var(--color-primary)] data-[state=active]:text-white"
               >
                 {tab === "connections" ? "Connected Accounts" : tab}
               </Tabs.Trigger>
@@ -68,8 +68,8 @@ export default function SettingsPage() {
               </CardHeader>
               <CardContent className="space-y-4">
                 <div>
-                  <div className="text-[14px] font-medium text-[var(--color-midnight-plum)]">{data?.user?.name}</div>
-                  <div className="text-[14px] text-[var(--color-steel)]">{data?.user?.email}</div>
+                  <div className="text-[14px] font-medium text-[var(--color-text-primary)]">{data?.user?.name}</div>
+                  <div className="text-[14px] text-[var(--color-text-secondary)]">{data?.user?.email}</div>
                   <div className="mt-2">
                     <Badge variant="outline">{data?.provider ?? "oauth"}</Badge>
                   </div>
@@ -86,12 +86,12 @@ export default function SettingsPage() {
               </CardHeader>
               <CardContent className="space-y-3">
                 {["Google", "Microsoft"].map((provider) => (
-                  <div key={provider} className="flex items-center justify-between rounded-[8px] border border-[var(--color-iris-edge)] p-4">
+                  <div key={provider} className="flex items-center justify-between rounded-[var(--radius-control)] border border-[var(--color-border)] p-4">
                     <div className="flex items-center gap-3">
                       <CheckCircle2 className="h-5 w-5 text-emerald-600" />
                       <div>
-                        <div className="text-[14px] font-medium text-[var(--color-midnight-plum)]">{provider}</div>
-                        <div className="text-[14px] text-[var(--color-steel)]">OAuth connection ready</div>
+                        <div className="text-[14px] font-medium text-[var(--color-text-primary)]">{provider}</div>
+                        <div className="text-[14px] text-[var(--color-text-secondary)]">OAuth connection ready</div>
                       </div>
                     </div>
                     <Button variant="outline">Disconnect</Button>
@@ -114,8 +114,8 @@ export default function SettingsPage() {
                   </Dialog.Trigger>
                   <Dialog.Portal>
                     <Dialog.Overlay className="fixed inset-0 z-40 bg-black/30" />
-                    <Dialog.Content className="fixed left-1/2 top-1/2 z-50 w-[min(92vw,520px)] -translate-x-1/2 -translate-y-1/2 rounded-[16px] bg-[var(--color-pure-white)] p-5 shadow-xl">
-                      <Dialog.Title className="font-avant-garde text-[24px] font-bold text-[var(--color-midnight-plum)]">Add Webhook</Dialog.Title>
+                    <Dialog.Content className="fixed left-1/2 top-1/2 z-50 w-[min(92vw,520px)] -translate-x-1/2 -translate-y-1/2 rounded-[var(--radius-card)] bg-white p-5 shadow-xl">
+                      <Dialog.Title className="text-[24px] font-semibold text-[var(--color-text-primary)]">Add Webhook</Dialog.Title>
                       <div className="mt-4 space-y-4">
                         <Input
                           value={url}
@@ -124,7 +124,7 @@ export default function SettingsPage() {
                         />
                         <div className="grid gap-2">
                           {events.map((eventName) => (
-                            <label key={eventName} className="flex items-center gap-2 text-[14px] text-[var(--color-midnight-plum)]">
+                            <label key={eventName} className="flex items-center gap-2 text-[14px] text-[var(--color-text-primary)]">
                               <input
                                 type="checkbox"
                                 checked={selectedEvents.includes(eventName)}
@@ -133,7 +133,7 @@ export default function SettingsPage() {
                                     event.target.checked ? [...current, eventName] : current.filter((item) => item !== eventName)
                                   )
                                 }
-                                className="accent-[var(--color-aubergine-core)]"
+                                className="accent-[var(--color-primary)]"
                               />
                               {eventName}
                             </label>
@@ -141,10 +141,10 @@ export default function SettingsPage() {
                         </div>
                         <Button onClick={() => void createWebhook()}>Submit</Button>
                         {createdSecret ? (
-                          <div className="rounded-[8px] border border-amber-200 bg-amber-50 p-3 text-[14px]">
+                          <div className="rounded-[var(--radius-control)] border border-amber-200 bg-amber-50 p-3 text-[14px]">
                             <div className="font-medium text-amber-800">Webhook secret shown once</div>
                             <div className="mt-2 flex items-center gap-2">
-                              <code className="min-w-0 flex-1 truncate rounded bg-[var(--color-pure-white)] px-2 py-1 text-[var(--color-midnight-plum)]">
+                              <code className="min-w-0 flex-1 truncate rounded bg-white px-2 py-1 text-[var(--color-text-primary)]">
                                 {createdSecret}
                               </code>
                               <Button size="icon" variant="outline" onClick={() => navigator.clipboard.writeText(createdSecret)}>
@@ -160,9 +160,9 @@ export default function SettingsPage() {
               </CardHeader>
               <CardContent className="space-y-3">
                 {webhooks.map((webhook) => (
-                  <div key={webhook.id} className="flex items-center justify-between gap-4 rounded-[8px] border border-[var(--color-iris-edge)] p-4">
+                  <div key={webhook.id} className="flex items-center justify-between gap-4 rounded-[var(--radius-control)] border border-[var(--color-border)] p-4">
                     <div className="min-w-0">
-                      <div className="truncate text-[14px] font-medium text-[var(--color-midnight-plum)]">{webhook.zapier_url}</div>
+                      <div className="truncate text-[14px] font-medium text-[var(--color-text-primary)]">{webhook.zapier_url}</div>
                       <div className="mt-2 flex flex-wrap gap-1">
                         {webhook.events.map((eventName) => (
                           <Badge key={eventName} variant="outline">{eventName}</Badge>

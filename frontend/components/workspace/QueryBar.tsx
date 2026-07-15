@@ -39,7 +39,7 @@ export function QueryBar({ fileId, token }: { fileId: string; token?: string }) 
   }
 
   return (
-    <form onSubmit={(event) => void submit(event)} className="border-t border-[var(--color-iris-edge)] bg-[var(--color-pure-white)] p-3">
+    <form onSubmit={(event) => void submit(event)} className="border-t border-[var(--color-border)] bg-white p-3">
       <div className="mx-auto flex max-w-5xl items-center gap-2">
         <div className="relative flex-1">
           <Input

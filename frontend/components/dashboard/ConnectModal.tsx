@@ -63,26 +63,26 @@ export function ConnectModal({ platform, token, onClose, onSuccess }: ConnectMod
 
   return (
     <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/40 p-4">
-      <div className="relative w-full max-w-md overflow-hidden rounded-[16px] bg-[var(--color-pure-white)] shadow-xl">
-        <div className="h-1 w-full bg-[var(--color-aubergine-core)]" />
+      <div className="relative w-full max-w-md overflow-hidden rounded-[var(--radius-card)] bg-white shadow-xl">
+        <div className="h-1 w-full bg-[var(--color-primary)]" />
 
         <Button
           variant="ghost"
           size="icon"
-          className="absolute right-2 top-4 text-[var(--color-fog)] hover:text-[var(--color-midnight-plum)]"
+          className="absolute right-2 top-4 text-[var(--color-text-tertiary)] hover:text-[var(--color-text-primary)]"
           onClick={onClose}
         >
           <X className="h-5 w-5" />
         </Button>
 
-        <div className="p-[32px]">
+        <div className="p-[var(--spacing-card)]">
           <div className="mb-6 flex items-center gap-3">
-            <div className="flex h-12 w-12 items-center justify-center rounded-[8px] bg-[var(--color-lavender-wash)] text-[var(--color-aubergine-core)]">
+            <div className="flex h-12 w-12 items-center justify-center rounded-md bg-[var(--color-primary-light)] text-[var(--color-primary)]">
               <FileSpreadsheet className="h-6 w-6" />
             </div>
             <div>
-              <h2 className="font-avant-garde text-[24px] font-bold text-[var(--color-midnight-plum)]">Connect Existing</h2>
-              <p className="text-[14px] text-[var(--color-steel)]">
+              <h2 className="text-[24px] font-semibold text-[var(--color-text-primary)]">Connect Existing</h2>
+              <p className="text-[14px] text-[var(--color-text-secondary)]">
                 Link a {isGoogle ? "Google Sheet" : "Microsoft Excel"} file.
               </p>
             </div>
@@ -90,7 +90,7 @@ export function ConnectModal({ platform, token, onClose, onSuccess }: ConnectMod
 
           <div className="space-y-4">
             <div>
-              <label className="mb-1 block text-[14px] font-semibold text-[var(--color-midnight-plum)]">Display Name</label>
+              <label className="label-mono mb-1 block text-[var(--color-text-secondary)]">Display Name</label>
               <Input
                 placeholder="e.g. Q3 Financial Report"
                 value={displayName}
@@ -99,7 +99,7 @@ export function ConnectModal({ platform, token, onClose, onSuccess }: ConnectMod
             </div>
 
             <div>
-              <label className="mb-1 block text-[14px] font-semibold text-[var(--color-midnight-plum)]">
+              <label className="label-mono mb-1 block text-[var(--color-text-secondary)]">
                 {isGoogle ? "Google Sheet Link (or ID)" : "OneDrive Link (or ID)"}
               </label>
               <Input
@@ -107,13 +107,13 @@ export function ConnectModal({ platform, token, onClose, onSuccess }: ConnectMod
                 value={url}
                 onChange={(e) => setUrl(e.target.value)}
               />
-              <p className="mt-2 text-[12px] text-[var(--color-fog)]">
+              <p className="mt-2 text-[12px] text-[var(--color-text-tertiary)]">
                 Make sure the file permissions allow access if applicable.
               </p>
             </div>
 
             {error && (
-              <div className="rounded-[8px] border border-red-200 bg-red-50 p-3 text-[14px] text-red-700">
+              <div className="rounded-[var(--radius-control)] border border-red-200 bg-red-50 p-3 text-[14px] text-red-700">
                 {error}
               </div>
             )}

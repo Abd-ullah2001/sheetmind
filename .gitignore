@@ -67,3 +67,6 @@ __pycache__
 .github/
 !.github/
 !.github/**
+.github
+sheetmind image reference.png
+sheetmind-design.md

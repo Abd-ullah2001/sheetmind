@@ -1,7 +1,7 @@
 "use client";
 
 import { useRouter } from "next/navigation";
-import { FileSpreadsheet, Trash2, MessageSquareText } from "lucide-react";
+import { FileSpreadsheet, Trash2 } from "lucide-react";
 import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
 import { Card, CardContent } from "@/components/ui/card";
@@ -22,19 +22,19 @@ export function FileCard({ file, onDelete, onChat }: FileCardProps) {
   const isGoogle = file.file_type === "google_sheets";
 
   return (
-    <Card className="group relative overflow-hidden transition-all duration-300 hover:-translate-y-0.5 hover:shadow-xl">
-      <CardContent className="p-[24px]">
+    <Card className="group relative overflow-hidden transition-all duration-300 hover:-translate-y-0.5 hover:shadow-card-hover">
+      <CardContent className="p-[var(--spacing-card)]">
         <div className="flex items-start justify-between">
           <div
             className="flex min-w-0 cursor-pointer items-start gap-3"
             onClick={() => router.push(`/workspace/${file.id}`)}
           >
-            <div className="flex h-12 w-12 shrink-0 items-center justify-center rounded-[8px] bg-[var(--color-lavender-wash)] text-[var(--color-aubergine-core)]">
+            <div className="flex h-12 w-12 shrink-0 items-center justify-center rounded-md bg-[var(--color-primary-light)] text-[var(--color-primary)]">
               <FileSpreadsheet className="h-6 w-6" />
             </div>
             <div className="min-w-0">
-              <div className="truncate text-[18px] font-semibold text-[var(--color-midnight-plum)]">{file.display_name}</div>
-              <div className="mt-1 text-[11px] font-semibold uppercase tracking-[0.057em] text-[var(--color-fog)]">
+              <div className="truncate text-[18px] font-semibold text-[var(--color-text-primary)]">{file.display_name}</div>
+              <div className="label-mono mt-1 text-[var(--color-text-tertiary)]">
                 Updated {formatDate(file.last_synced_at)}
               </div>
             </div>
@@ -44,7 +44,7 @@ export function FileCard({ file, onDelete, onChat }: FileCardProps) {
             <Button
               size="icon"
               variant="ghost"
-              className="h-8 w-8 text-[var(--color-fog)] hover:bg-red-50 hover:text-red-500"
+              className="h-8 w-8 text-[var(--color-text-tertiary)] hover:bg-red-50 hover:text-red-500"
               onClick={(e) => { e.stopPropagation(); onDelete(file.id); }}
             >
               <Trash2 className="h-4 w-4" />
@@ -56,17 +56,16 @@ export function FileCard({ file, onDelete, onChat }: FileCardProps) {
           <Badge variant="default">
             {file.file_type.replace("_", " ")}
           </Badge>
-          <span className="text-[12px] text-[var(--color-steel)]">
+          <span className="text-[12px] text-[var(--color-text-secondary)]">
             {rows} rows &middot; {columns} columns
           </span>
         </div>
 
-        <div className="mt-5 flex gap-2 border-t border-[var(--color-ash)] pt-4">
+        <div className="mt-5 flex gap-2 border-t border-[var(--color-border-light)] pt-4">
           <Button
             className="flex-1 h-9 text-[12px] font-semibold"
             onClick={() => onChat(file)}
           >
-            <MessageSquareText className="mr-2 h-3.5 w-3.5" />
             Chat with Agent
           </Button>
           <Button

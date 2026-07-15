@@ -84,18 +84,18 @@ export function ChatAgent({ fileId, fileName, token, onClose }: ChatAgentProps) 
   return (
     <div
       className={cn(
-        "fixed bottom-6 right-6 z-50 flex flex-col overflow-hidden rounded-[16px] border border-[var(--color-iris-edge)] bg-[var(--color-pure-white)] shadow-xl transition-all duration-300 ease-in-out",
+        "fixed bottom-6 right-6 z-50 flex flex-col overflow-hidden rounded-[var(--radius-card)] border border-[var(--color-border)] bg-white shadow-xl transition-all duration-300 ease-in-out",
         isMinimized ? "h-14 w-64" : "h-[600px] w-[400px] max-w-[calc(100vw-48px)]"
       )}
     >
       <div
-        className="flex cursor-pointer items-center justify-between bg-[var(--color-aubergine-core)] px-4 py-3 text-[var(--color-pure-white)]"
+        className="flex cursor-pointer items-center justify-between bg-[var(--color-primary)] px-4 py-3 text-white"
         onClick={() => isMinimized && setIsMinimized(false)}
       >
         <div className="flex items-center gap-2">
           <Sparkles className="h-5 w-5" />
           <span className="max-w-[150px] truncate font-semibold">
-            {isMinimized ? "SheetMind Agent" : `Chat: ${fileName}`}
+            {isMinimized ? "Auralis Agent" : `Chat: ${fileName}`}
           </span>
         </div>
         <div className="flex items-center gap-1">
@@ -132,18 +132,18 @@ export function ChatAgent({ fileId, fileName, token, onClose }: ChatAgentProps) 
         <>
           <div
             ref={scrollRef}
-            className="flex-1 space-y-4 overflow-y-auto bg-[var(--color-cream-canvas)] p-4"
+            className="flex-1 space-y-4 overflow-y-auto bg-[var(--color-surface-soft)] p-4"
           >
             {messages.length === 0 && (
               <div className="flex h-full flex-col items-center justify-center p-6 text-center opacity-60">
-                <div className="mb-3 rounded-full bg-[var(--color-lavender-wash)] p-3 text-[var(--color-aubergine-core)]">
+                <div className="mb-3 rounded-full bg-[var(--color-primary-light)] p-3 text-[var(--color-primary)]">
                   <Bot className="h-8 w-8" />
                 </div>
-                <p className="text-[14px] font-medium text-[var(--color-graphite)]">
-                  You&apos;re chatting with the SheetMind agent for{" "}
+                <p className="text-[14px] font-medium text-[var(--color-text-secondary)]">
+                  {`You're chatting with the Auralis agent for `}
                   <b>{fileName}</b>.
                   <br />
-                  Ask for analysis, updates, or data cleanup and I&apos;ll handle the details.
+                  {`Ask for analysis, updates, or data cleanup and I'll handle the details.`}
                 </p>
               </div>
             )}
@@ -158,10 +158,10 @@ export function ChatAgent({ fileId, fileName, token, onClose }: ChatAgentProps) 
               >
                 <div
                   className={cn(
-                    "flex h-8 w-8 shrink-0 select-none items-center justify-center rounded-[8px] border shadow-sm",
+                    "flex h-8 w-8 shrink-0 select-none items-center justify-center rounded-md border shadow-sm",
                     m.role === "user"
-                      ? "bg-[var(--color-pure-white)] text-[var(--color-graphite)] border-[var(--color-iris-edge)]"
-                      : "bg-[var(--color-aubergine-core)] text-[var(--color-pure-white)] border-[var(--color-aubergine-core)]"
+                      ? "bg-white text-[var(--color-text-secondary)] border-[var(--color-border)]"
+                      : "bg-[var(--color-primary)] text-white border-[var(--color-primary)]"
                   )}
                 >
                   {m.role === "user" ? (
@@ -178,15 +178,15 @@ export function ChatAgent({ fileId, fileName, token, onClose }: ChatAgentProps) 
                 >
                   <div
                     className={cn(
-                      "rounded-[16px] px-4 py-2 text-[14px]",
+                      "rounded-[var(--radius-card)] px-4 py-2 text-[14px]",
                       m.role === "user"
-                        ? "bg-[var(--color-aubergine-core)] text-[var(--color-pure-white)]"
-                        : "bg-[var(--color-pure-white)] border border-[var(--color-iris-edge)] text-[var(--color-midnight-plum)]"
+                        ? "bg-[var(--color-primary)] text-white"
+                        : "bg-white border border-[var(--color-border)] text-[var(--color-text-primary)]"
                     )}
                   >
                     {m.content}
                   </div>
-                  <span className="text-[10px] text-[var(--color-fog)]">
+                  <span className="text-[10px] text-[var(--color-text-tertiary)]">
                     {m.timestamp.toLocaleTimeString([], {
                       hour: "2-digit",
                       minute: "2-digit",
@@ -198,17 +198,17 @@ export function ChatAgent({ fileId, fileName, token, onClose }: ChatAgentProps) 
 
             {isLoading && (
               <div className="flex items-start gap-3">
-                <div className="flex h-8 w-8 shrink-0 select-none items-center justify-center rounded-[8px] border border-[var(--color-aubergine-core)] bg-[var(--color-aubergine-core)] text-[var(--color-pure-white)] shadow-sm">
+                <div className="flex h-8 w-8 shrink-0 select-none items-center justify-center rounded-md border border-[var(--color-primary)] bg-[var(--color-primary)] text-white shadow-sm">
                   <Bot className="h-4 w-4" />
                 </div>
-                <div className="rounded-[16px] border border-[var(--color-iris-edge)] bg-[var(--color-pure-white)] px-4 py-3">
-                  <Loader2 className="h-4 w-4 animate-spin text-[var(--color-aubergine-core)]" />
+                <div className="rounded-[var(--radius-card)] border border-[var(--color-border)] bg-white px-4 py-3">
+                  <Loader2 className="h-4 w-4 animate-spin text-[var(--color-primary)]" />
                 </div>
               </div>
             )}
           </div>
 
-          <div className="border-t border-[var(--color-iris-edge)] bg-[var(--color-pure-white)] p-4">
+          <div className="border-t border-[var(--color-border)] bg-white p-4">
             <div className="flex gap-2">
               <Input
                 placeholder="Ask your agent..."

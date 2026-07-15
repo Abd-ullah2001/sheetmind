@@ -59,24 +59,26 @@ export default function DashboardPage() {
     if (chatFile?.id === id) setChatFile(null);
   }
 
+  const q = String.fromCharCode(34); // "
+
   return (
-    <div className="min-h-screen bg-[var(--color-cream-canvas)]">
+    <div className="min-h-screen bg-white">
       <Navbar />
 
       <main className="relative z-10 mx-auto max-w-page px-4 py-10">
-        <div className="flex flex-col gap-6 sm:flex-row sm:items-end sm:justify-between border-b border-[var(--color-iris-edge)] pb-8">
+        <div className="flex flex-col gap-6 sm:flex-row sm:items-end sm:justify-between border-b border-[var(--color-border)] pb-8">
           <div>
             <div className="flex items-center gap-3 mb-2">
-              <div className="flex h-10 w-10 items-center justify-center rounded-[8px] bg-[var(--color-lavender-wash)] text-[var(--color-aubergine-core)]">
+              <div className="flex h-10 w-10 items-center justify-center rounded-md bg-[var(--color-primary-light)] text-[var(--color-primary)]">
                 <Sparkles className="h-5 w-5" />
               </div>
-              <h1 className="font-avant-garde text-[32px] font-bold text-[var(--color-midnight-plum)]">Your Workspace</h1>
+              <h1 className="text-[32px] font-semibold text-[var(--color-text-primary)]">Your Workspace</h1>
             </div>
-            <p className="max-w-xl text-[16px] text-[var(--color-graphite)] leading-[1.38]">
+            <p className="max-w-xl text-[16px] text-[var(--color-text-secondary)] leading-[1.6]">
               Connect your spreadsheets and let the AI agent analyze, update, and manage your data automatically.
             </p>
           </div>
-          <div className="rounded-[8px] border border-[var(--color-iris-edge)] bg-[var(--color-pure-white)] p-1 shadow-sm">
+          <div className="rounded-[var(--radius-control)] border border-[var(--color-border)] bg-white p-1 shadow-sm">
             <PlatformSelector value={platform} onChange={setPlatform} />
           </div>
         </div>
@@ -84,7 +86,7 @@ export default function DashboardPage() {
         <div className="mt-8 grid gap-8 lg:grid-cols-[1fr_320px]">
           <section>
             <div className="mb-6 flex items-center justify-between">
-              <h2 className="font-avant-garde text-[24px] font-bold text-[var(--color-midnight-plum)]">
+              <h2 className="text-[24px] font-semibold text-[var(--color-text-primary)]">
                 {isGoogle ? "Google Sheets" : "Excel Workbooks"}
               </h2>
               <div className="flex gap-3">
@@ -104,7 +106,7 @@ export default function DashboardPage() {
             </div>
 
             {error && (
-              <div className="mb-6 rounded-[8px] border border-red-200 bg-red-50 p-4 text-[14px] text-red-700">
+              <div className="mb-6 rounded-[var(--radius-control)] border border-red-200 bg-red-50 p-4 text-[14px] text-red-700">
                 {error}
               </div>
             )}
@@ -112,7 +114,7 @@ export default function DashboardPage() {
             {isLoading ? (
               <div className="grid gap-5 sm:grid-cols-2">
                 {[1, 2, 3, 4].map((item) => (
-                  <div key={item} className="h-40 animate-pulse rounded-[16px] bg-[var(--color-pure-white)]/60 border border-[var(--color-iris-edge)]" />
+                  <div key={item} className="h-40 animate-pulse rounded-[var(--radius-card)] bg-[var(--color-surface-soft)] border border-[var(--color-border)]" />
                 ))}
               </div>
             ) : visibleFiles.length > 0 ? (
@@ -127,13 +129,13 @@ export default function DashboardPage() {
                 ))}
               </div>
             ) : (
-              <div className="flex flex-col items-center justify-center rounded-[16px] border border-dashed border-[var(--color-iris-edge)] bg-[var(--color-pure-white)]/50 p-12 text-center">
-                <div className="mb-4 flex h-16 w-16 items-center justify-center rounded-full bg-[var(--color-lavender-wash)] text-[var(--color-aubergine-core)]">
+              <div className="flex flex-col items-center justify-center rounded-[var(--radius-card)] border border-dashed border-[var(--color-border)] bg-[var(--color-surface-soft)]/50 p-12 text-center">
+                <div className="mb-4 flex h-16 w-16 items-center justify-center rounded-full bg-[var(--color-primary-light)] text-[var(--color-primary)]">
                   <ExternalLink className="h-8 w-8" />
                 </div>
-                <h3 className="font-avant-garde text-[24px] font-bold text-[var(--color-midnight-plum)]">No files connected yet</h3>
-                <p className="mt-2 max-w-sm text-[14px] text-[var(--color-steel)]">
-                  Click the &quot;Connect Existing&quot; button to link your {isGoogle ? "Google Sheets" : "Excel workbooks"} to SheetMind.
+                <h3 className="text-[24px] font-semibold text-[var(--color-text-primary)]">No files connected yet</h3>
+                <p className="mt-2 max-w-sm text-[14px] text-[var(--color-text-secondary)]">
+                  Click the {q}Connect Existing{q} button to link your {isGoogle ? "Google Sheets" : "Excel workbooks"} to Auralis.
                 </p>
                 <Button className="mt-6" onClick={() => setIsConnectModalOpen(true)}>
                   Connect Your First File
@@ -164,10 +166,10 @@ export default function DashboardPage() {
                     <span className="absolute inline-flex h-full w-full animate-ping rounded-full bg-green-400 opacity-75" />
                     <span className="relative inline-flex h-3 w-3 rounded-full bg-green-500" />
                   </div>
-                  <span className="text-[14px] font-medium text-[var(--color-midnight-plum)]">Online &amp; Ready</span>
+                  <span className="text-[14px] font-medium text-[var(--color-text-primary)]">Online & Ready</span>
                 </div>
-                <p className="mt-3 text-[12px] text-[var(--color-steel)]">
-                  Select a file and click &quot;Chat with Agent&quot; to begin analyzing your data.
+                <p className="mt-3 text-[12px] text-[var(--color-text-secondary)]">
+                  Select a file and click {q}Chat with Agent{q} to begin analyzing your data.
                 </p>
               </CardContent>
             </Card>

@@ -38,19 +38,19 @@ export default function WorkspacePage() {
   }, [router, status]);
 
   return (
-    <div className="flex h-screen flex-col bg-[var(--color-cream-canvas)]">
+    <div className="flex h-screen flex-col bg-white">
       <Navbar />
       <div className="flex min-h-0 flex-1">
         <Sidebar />
         <main className="flex min-w-0 flex-1 flex-col">
-          <div className="flex h-11 items-center justify-between border-b border-[var(--color-iris-edge)] bg-[var(--color-pure-white)] px-3">
-            <div className="text-[14px] font-medium text-[var(--color-midnight-plum)]">A1:Z200</div>
+          <div className="flex h-11 items-center justify-between border-b border-[var(--color-border)] bg-white px-3">
+            <div className="text-[14px] font-medium text-[var(--color-text-primary)]">A1:Z200</div>
             <Button variant="ghost" size="icon" title="Toggle results" onClick={() => setShowResults((value) => !value)}>
               {showResults ? <PanelRightClose className="h-4 w-4" /> : <PanelRightOpen className="h-4 w-4" />}
             </Button>
           </div>
           {error ? (
-            <div className="m-4 rounded-[8px] border border-red-200 bg-red-50 p-4 text-[14px] text-red-700">{error}</div>
+            <div className="m-4 rounded-[var(--radius-control)] border border-red-200 bg-red-50 p-4 text-[14px] text-red-700">{error}</div>
           ) : null}
           <div className="flex min-h-0 flex-1">
             <SpreadsheetViewer fileId={params.fileId} token={accessToken} />
