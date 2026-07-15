@@ -1,6 +1,6 @@
 from typing import List, Optional
 from datetime import datetime
-from app.database import supabase_client
+import app.database
 
 def log_query(
     user_id: str,
@@ -29,13 +29,13 @@ def log_query(
         "created_at": datetime.now().isoformat()
     }
     
-    return supabase_client.table("query_logs").insert(log_data).execute()
+    return app.database.supabase_client.table("query_logs").insert(log_data).execute()
 
 def get_logs(user_id: str, limit: int = 20, offset: int = 0):
     """
     Returns paginated query logs for a user.
     """
-    return supabase_client.table("query_logs") \
+    return app.database.supabase_client.table("query_logs") \
         .select("*, files(display_name)") \
         .eq("user_id", user_id) \
         .order("created_at", desc=True) \
@@ -46,7 +46,7 @@ def get_log_by_id(log_id: str, user_id: str):
     """
     Returns a single log entry.
     """
-    return supabase_client.table("query_logs") \
+    return app.database.supabase_client.table("query_logs") \
         .select("*, files(*)") \
         .eq("id", log_id) \
         .eq("user_id", user_id) \

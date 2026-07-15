@@ -3,13 +3,15 @@
 import { useEffect, useMemo, useState } from "react";
 import { AgGridReact } from "ag-grid-react";
 import type { ColDef } from "ag-grid-community";
-import "ag-grid-community/styles/ag-grid.css";
-import "ag-grid-community/styles/ag-theme-quartz.css";
+import { ModuleRegistry } from "ag-grid-community";
+import { ClientSideRowModelModule } from "ag-grid-community";
 import { api } from "@/lib/api";
 import { useSheetMindStore } from "@/lib/store";
 import { LoadingSpinner } from "@/components/shared/LoadingSpinner";
 
 type Row = Record<string, unknown>;
+
+ModuleRegistry.registerModules([ClientSideRowModelModule]);
 
 function columnName(index: number) {
   let name = "";
@@ -29,7 +31,7 @@ export function SpreadsheetViewer({ fileId, token }: { fileId: string; token?: s
   const [error, setError] = useState<string | null>(null);
 
   useEffect(() => {
-    if (!activeSheet) return;
+    if (!activeSheet || !token) return;
     setLoading(true);
     setError(null);
     api.getSheetRange(fileId, activeSheet, "A1:Z200", token).then((data) => {
@@ -49,9 +51,23 @@ export function SpreadsheetViewer({ fileId, token }: { fileId: string; token?: s
 
   return (
     <div className="relative h-full min-h-0 flex-1 bg-white">
-      {isLoading ? <div className="absolute inset-0 z-10 flex items-center justify-center bg-white/70"><LoadingSpinner className="h-6 w-6 text-primary" /></div> : null}
-      {error ? <div className="m-4 rounded-lg border border-red-200 bg-red-50 p-4 text-sm text-red-700">{error}</div> : null}
-      <div className="ag-theme-quartz h-full w-full"><AgGridReact<Row> rowData={rows} columnDefs={columns} defaultColDef={{ sortable: false, filter: false }} suppressCellFocus animateRows={false} /></div>
+      {isLoading ? (
+        <div className="absolute inset-0 z-10 flex items-center justify-center bg-white/70">
+          <LoadingSpinner className="h-6 w-6" />
+        </div>
+      ) : null}
+      {error ? (
+        <div className="m-4 rounded-[var(--radius-control)] border border-red-200 bg-red-50 p-4 text-[14px] text-red-700">{error}</div>
+      ) : null}
+      <div className="ag-theme-quartz h-full w-full">
+        <AgGridReact<Row>
+          rowData={rows}
+          columnDefs={columns}
+          defaultColDef={{ sortable: false, filter: false }}
+          suppressCellFocus
+          animateRows={false}
+        />
+      </div>
     </div>
   );
 }

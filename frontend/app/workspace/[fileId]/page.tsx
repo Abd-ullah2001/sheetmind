@@ -1,7 +1,9 @@
 "use client";
 
+export const dynamic = "force-dynamic";
+
 import { useEffect, useState } from "react";
-import { useParams, redirect } from "next/navigation";
+import { useParams, useRouter } from "next/navigation";
 import { useSession } from "next-auth/react";
 import { PanelRightClose, PanelRightOpen } from "lucide-react";
 import { Button } from "@/components/ui/button";
@@ -15,30 +17,46 @@ import { useSheetMindStore } from "@/lib/store";
 
 export default function WorkspacePage() {
   const params = useParams<{ fileId: string }>();
-  const { data: session, status } = useSession();
+  const sessionRes = useSession();
+  const status = sessionRes?.status;
+  const accessToken = sessionRes?.data?.accessToken;
+  const router = useRouter();
   const [showResults, setShowResults] = useState(true);
   const [error, setError] = useState<string | null>(null);
   const { setActiveFile, setSheetNames } = useSheetMindStore();
 
   useEffect(() => {
-    if (!params.fileId || !session?.accessToken) return;
-    Promise.all([api.getFile(params.fileId, session.accessToken), api.getSheetInfo(params.fileId, session.accessToken)]).then(([file, info]) => {
+    if (!params.fileId || !accessToken) return;
+    Promise.all([api.getFile(params.fileId, accessToken), api.getSheetInfo(params.fileId, accessToken)]).then(([file, info]) => {
       setActiveFile(file);
       setSheetNames(info.sheet_names ?? info.sheets ?? file.metadata?.sheets ?? ["Sheet1"]);
     }).catch((err) => setError(err instanceof Error ? err.message : "Could not load workspace"));
-  }, [params.fileId, session?.accessToken, setActiveFile, setSheetNames]);
+  }, [params.fileId, accessToken, setActiveFile, setSheetNames]);
 
-  if (status === "unauthenticated") redirect("/");
+  useEffect(() => {
+    if (status === "unauthenticated") router.replace("/");
+  }, [router, status]);
+
   return (
-    <div className="flex h-screen flex-col bg-background">
+    <div className="flex h-screen flex-col bg-white">
       <Navbar />
       <div className="flex min-h-0 flex-1">
         <Sidebar />
         <main className="flex min-w-0 flex-1 flex-col">
-          <div className="flex h-11 items-center justify-between border-b bg-white px-3"><div className="text-sm font-medium">A1:Z200</div><Button variant="ghost" size="icon" title="Toggle results" onClick={() => setShowResults((value) => !value)}>{showResults ? <PanelRightClose className="h-4 w-4" /> : <PanelRightOpen className="h-4 w-4" />}</Button></div>
-          {error ? <div className="m-4 rounded-lg border border-red-200 bg-red-50 p-4 text-sm text-red-700">{error}</div> : null}
-          <div className="flex min-h-0 flex-1"><SpreadsheetViewer fileId={params.fileId} token={session?.accessToken} />{showResults ? <ResultPanel /> : null}</div>
-          <QueryBar fileId={params.fileId} token={session?.accessToken} />
+          <div className="flex h-11 items-center justify-between border-b border-[var(--color-border)] bg-white px-3">
+            <div className="text-[14px] font-medium text-[var(--color-text-primary)]">A1:Z200</div>
+            <Button variant="ghost" size="icon" title="Toggle results" onClick={() => setShowResults((value) => !value)}>
+              {showResults ? <PanelRightClose className="h-4 w-4" /> : <PanelRightOpen className="h-4 w-4" />}
+            </Button>
+          </div>
+          {error ? (
+            <div className="m-4 rounded-[var(--radius-control)] border border-red-200 bg-red-50 p-4 text-[14px] text-red-700">{error}</div>
+          ) : null}
+          <div className="flex min-h-0 flex-1">
+            <SpreadsheetViewer fileId={params.fileId} token={accessToken} />
+            {showResults ? <ResultPanel /> : null}
+          </div>
+          <QueryBar fileId={params.fileId} token={accessToken} />
         </main>
       </div>
     </div>

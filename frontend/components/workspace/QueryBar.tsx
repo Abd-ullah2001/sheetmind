@@ -15,6 +15,10 @@ export function QueryBar({ fileId, token }: { fileId: string; token?: string }) 
 
   async function submit(event: FormEvent) {
     event.preventDefault();
+    if (!token) {
+      setError("Not authenticated. Please sign in again.");
+      return;
+    }
     const trimmed = query.trim();
     if (!trimmed || isQuerying) return;
     const started = performance.now();
@@ -35,15 +39,24 @@ export function QueryBar({ fileId, token }: { fileId: string; token?: string }) 
   }
 
   return (
-    <form onSubmit={(event) => void submit(event)} className="border-t bg-white p-3">
+    <form onSubmit={(event) => void submit(event)} className="border-t border-[var(--color-border)] bg-white p-3">
       <div className="mx-auto flex max-w-5xl items-center gap-2">
         <div className="relative flex-1">
-          <Input value={query} onChange={(event) => setQuery(event.target.value)} disabled={isQuerying} placeholder="Ask anything... e.g. 'Sum column B and highlight values above 500 in red'" className="h-12 pr-10" />
-          {isQuerying ? <LoadingSpinner className="absolute right-3 top-4 text-primary" /> : null}
+          <Input
+            value={query}
+            onChange={(event) => setQuery(event.target.value)}
+            disabled={isQuerying}
+            placeholder='Ask anything... e.g. "Sum column B and highlight values above 500 in red"'
+            className="h-12 pr-10"
+          />
+          {isQuerying ? <LoadingSpinner className="absolute right-3 top-4" /> : null}
         </div>
-        <Button type="submit" className="h-12" disabled={isQuerying || !query.trim()}><SendHorizonal className="h-4 w-4" />Submit</Button>
+        <Button type="submit" className="h-12" disabled={isQuerying || !query.trim()}>
+          <SendHorizonal className="h-4 w-4" />
+          Submit
+        </Button>
       </div>
-      {error ? <div className="mx-auto mt-2 max-w-5xl text-sm text-red-600">{error}</div> : null}
+      {error ? <div className="mx-auto mt-2 max-w-5xl text-[14px] text-red-600">{error}</div> : null}
     </form>
   );
 }

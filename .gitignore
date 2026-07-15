@@ -48,3 +48,25 @@ frontend/.next/
 frontend/node_modules/
 
 implementation.md
+.codersinflow
+.vscode
+node_modules
+.venv
+.codex
+out
+dist
+*.vsix
+.claude
+CLAUDE.md
+.git
+*.log
+*.tmp
+__pycache__
+*.pyc
+.next
+.github/
+!.github/
+!.github/**
+.github
+sheetmind image reference.png
+sheetmind-design.md

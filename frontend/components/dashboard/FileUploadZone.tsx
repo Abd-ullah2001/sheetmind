@@ -28,11 +28,15 @@ export function FileUploadZone({ token }: { token?: string }) {
   }
 
   return (
-    <label className="flex min-h-40 cursor-pointer flex-col items-center justify-center rounded-lg border border-dashed bg-white p-6 text-center transition-colors hover:bg-muted/50" onDragOver={(event) => event.preventDefault()} onDrop={(event) => { event.preventDefault(); const file = event.dataTransfer.files.item(0); if (file) void upload(file); }}>
-      {isUploading ? <LoadingSpinner className="h-6 w-6 text-primary" /> : <UploadCloud className="h-8 w-8 text-primary" />}
-      <div className="mt-3 font-medium">Drop an Excel workbook here</div>
-      <div className="mt-1 text-sm text-muted-foreground">or click to choose a .xlsx file</div>
-      {error ? <div className="mt-3 text-sm text-red-600">{error}</div> : null}
+    <label
+      className="flex min-h-40 cursor-pointer flex-col items-center justify-center rounded-[var(--radius-card)] border border-dashed border-[var(--color-border)] bg-white p-6 text-center transition-colors hover:bg-[var(--color-primary-light)]/50"
+      onDragOver={(event) => event.preventDefault()}
+      onDrop={(event) => { event.preventDefault(); const file = event.dataTransfer.files.item(0); if (file) void upload(file); }}
+    >
+      {isUploading ? <LoadingSpinner className="h-6 w-6" /> : <UploadCloud className="h-8 w-8 text-[var(--color-primary)]" />}
+      <div className="mt-3 text-[14px] font-semibold text-[var(--color-text-primary)]">Drop an Excel workbook here</div>
+      <div className="mt-1 text-[14px] text-[var(--color-text-secondary)]">or click to choose a .xlsx file</div>
+      {error ? <div className="mt-3 text-[14px] text-red-600">{error}</div> : null}
       <input type="file" accept=".xlsx" className="hidden" disabled={isUploading} onChange={(event) => { const file = event.target.files?.[0]; if (file) void upload(file); }} />
     </label>
   );

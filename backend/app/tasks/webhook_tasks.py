@@ -1,6 +1,6 @@
 import asyncio
 from app.tasks.celery_app import celery_app
-from app.database import supabase_client
+import app.database
 import app.services.webhook_service as webhook_service
 
 @celery_app.task(bind=True, max_retries=3)
@@ -8,7 +8,7 @@ def fire_webhook_task(self, webhook_config_id: str, payload: dict):
     """
     Celery task to fire a webhook with exponential backoff retries.
     """
-    res = supabase_client.table("webhook_configs") \
+    res = app.database.supabase_client.table("webhook_configs") \
         .select("*") \
         .eq("id", webhook_config_id) \
         .single() \

@@ -2,7 +2,7 @@ import io
 import openpyxl
 from app.tasks.celery_app import celery_app
 from app.services.s3_service import download_file_to_memory
-from app.database import supabase_client
+import app.database
 
 @celery_app.task(name="parse_excel_metadata")
 def parse_excel_metadata(file_id: str, s3_key: str, user_id: str):
@@ -27,7 +27,7 @@ def parse_excel_metadata(file_id: str, s3_key: str, user_id: str):
         }
         
         # Update file record
-        supabase_client.table("files").update({"metadata": metadata}).eq("id", file_id).execute()
+        app.database.supabase_client.table("files").update({"metadata": metadata}).eq("id", file_id).execute()
         
         return {"status": "success", "file_id": file_id}
         

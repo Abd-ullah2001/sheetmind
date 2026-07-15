@@ -42,7 +42,7 @@ def test_verify_jwt_tampered_token():
         verify_jwt_token(tampered)
 
 
-@patch("app.services.auth_service.supabase_client")
+@patch("app.database.supabase_client")
 def test_upsert_user_new(mock_supabase):
     """upsert_user inserts a new user when email doesn't exist."""
     from app.services.auth_service import upsert_user
@@ -61,7 +61,7 @@ def test_upsert_user_new(mock_supabase):
     assert result["email"] == "new@example.com"
 
 
-@patch("app.services.auth_service.supabase_client")
+@patch("app.database.supabase_client")
 def test_upsert_user_existing(mock_supabase):
     """upsert_user updates last_login when user already exists."""
     from app.services.auth_service import upsert_user
@@ -95,7 +95,8 @@ def test_auth_me_endpoint_without_token():
 
 def test_auth_me_endpoint_with_valid_token():
     """The /auth/me endpoint returns user data with a valid JWT."""
-    with patch("app.database.supabase_client") as mock_supabase, \
+    mock_supabase = MagicMock()
+    with patch("app.database.supabase_client", mock_supabase), \
          patch("app.redis_client.redis_client"), \
          patch("app.s3_client.s3_client"):
         from fastapi.testclient import TestClient
